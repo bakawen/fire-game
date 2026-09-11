@@ -1,0 +1,54 @@
+# Unity generated
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]serSettings/
+[Mm]emoryCaptures/
+
+# IDE
+.vs/
+.idea/
+*.csproj
+*.sln
+*.user
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity3D generated meta
+sysinfo.txt
+*.stackdump
+
+# Builds
+*.apk
+*.unitypackage
+*.app
+
+# Crashlytics
+crashlytics-build.properties
+
+# Codely CLI data
+.codely-cli/
+.com-unity-codely.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large temp files
+*.bak
+*.tmp
+
+# Compressed archives (assets already extracted)
+*.7z
+*.rar
+
+# Video renders (can regenerate)
+screenshots/*.mp4
