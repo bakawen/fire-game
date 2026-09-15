@@ -1,9 +1,13 @@
 using System;
 using UnityEngine;
 
-/// <summary>火点：火焰+烟雾粒子+光照，强度随时间增长；灭火器可扑灭（受可灭标记限制）。</summary>
+/// <summary>火点：火焰+烟雾+火星粒子+光照，强度随时间增长；灭火器可扑灭（受可灭标记限制）。
+/// 视觉基调：大火+竖向火舌(3D尺寸拉伸)+噪声乱舞+火星飞溅+火光摇曳照亮环境
+/// （配合火区周边几何取消静态标记，见WC区先例）。</summary>
 public class FirePoint : MonoBehaviour
 {
+    private enum ParticleKind { Fire, Smoke, Ember }
+
     [Header("燃烧参数")]
     [SerializeField] private bool burnOnStart = false;
     [SerializeField] private float startIntensity = 0.3f;
@@ -28,6 +32,7 @@ public class FirePoint : MonoBehaviour
 
     private ParticleSystem firePS;
     private ParticleSystem smokePS;
+    private ParticleSystem emberPS;
     private Light fireLight;
     private float externalDecay;
     private float seed;
@@ -110,42 +115,54 @@ public class FirePoint : MonoBehaviour
         if (firePS != null)
         {
             var em = firePS.emission;
-            em.rateOverTime = 55f * Intensity;
+            em.rateOverTime = 95f * Intensity;
             if (Intensity > 0.03f) { if (!firePS.isPlaying) firePS.Play(); }
             else if (firePS.isPlaying) firePS.Stop();
         }
         if (smokePS != null)
         {
             var em = smokePS.emission;
-            em.rateOverTime = Mathf.Max(10f, 34f * Intensity);
+            em.rateOverTime = Mathf.Max(14f, 48f * Intensity);
             if (Intensity > 0.03f) { if (!smokePS.isPlaying) smokePS.Play(); }
             else if (smokePS.isPlaying) smokePS.Stop();
+        }
+        if (emberPS != null)
+        {
+            var em = emberPS.emission;
+            em.rateOverTime = 42f * Intensity;
+            if (Intensity > 0.03f) { if (!emberPS.isPlaying) emberPS.Play(); }
+            else if (emberPS.isPlaying) emberPS.Stop();
         }
         if (fireLight != null)
         {
             fireLight.enabled = Intensity > 0.03f;
-            fireLight.intensity = 4.2f * Intensity * (0.82f + 0.18f * Mathf.PerlinNoise(seed, Time.time * 9f));
+            // 双频闪烁：低频摇曳打底 + 高频抖动叠加，火光永不熄灭式归零
+            float flick = Mathf.PerlinNoise(seed, Time.time * 6.5f) * 0.6f
+                        + Mathf.PerlinNoise(seed + 37f, Time.time * 16f) * 0.4f;
+            fireLight.intensity = 6.5f * Intensity * (0.72f + 0.35f * flick);
         }
     }
 
     private void BuildParticles()
     {
-        firePS = CreateParticles("Fire", fireMaterial, true);
-        smokePS = CreateParticles("Smoke", smokeMaterial, false);
+        firePS = CreateParticles("Fire", fireMaterial, ParticleKind.Fire);
+        smokePS = CreateParticles("Smoke", smokeMaterial, ParticleKind.Smoke);
+        emberPS = CreateParticles("Embers", fireMaterial, ParticleKind.Ember);
 
         var lightGo = new GameObject("FireLight");
         lightGo.transform.SetParent(transform, false);
-        lightGo.transform.localPosition = new Vector3(0f, 0.6f, 0f);
+        lightGo.transform.localPosition = new Vector3(0f, 0.9f, 0f);
         fireLight = lightGo.AddComponent<Light>();
         fireLight.type = LightType.Point;
-        fireLight.color = new Color(1f, 0.55f, 0.22f);
-        fireLight.range = 7f;
+        fireLight.color = new Color(1f, 0.42f, 0.12f);
+        fireLight.range = 11f;
         fireLight.shadows = LightShadows.None;
         fireLight.enabled = false;
     }
 
-    private ParticleSystem CreateParticles(string objName, Material mat, bool isFire)
+    private ParticleSystem CreateParticles(string objName, Material mat, ParticleKind kind)
     {
+        bool isFire = kind == ParticleKind.Fire;
         var go = new GameObject(objName);
         go.transform.SetParent(transform, false);
         // 先停用：AddComponent 时粒子系统会立即自动播放，导致后续设置 duration 被拒绝
@@ -155,27 +172,70 @@ public class FirePoint : MonoBehaviour
         var main = ps.main;
         main.loop = true;
         main.playOnAwake = false;
-        main.duration = isFire ? 1.2f : 3f;
-        main.startLifetime = isFire
-            ? new ParticleSystem.MinMaxCurve(0.5f, 0.9f)
-            : new ParticleSystem.MinMaxCurve(3.2f, 4.6f);
-        main.startSpeed = isFire
-            ? new ParticleSystem.MinMaxCurve(1.2f, 2.0f)
-            : new ParticleSystem.MinMaxCurve(0.3f, 0.7f);
-        main.startSize = isFire
-            ? new ParticleSystem.MinMaxCurve(0.36f, 0.68f)
-            : new ParticleSystem.MinMaxCurve(0.9f, 1.7f);
-        main.gravityModifier = isFire ? -0.25f : -0.03f;
-        main.maxParticles = isFire ? 160 : 180;
-        main.startColor = isFire
-            ? new ParticleSystem.MinMaxGradient(new Color(1f, 0.62f, 0.15f), new Color(1f, 0.85f, 0.35f))
-            : new ParticleSystem.MinMaxGradient(new Color(0.18f, 0.18f, 0.20f), new Color(0.28f, 0.28f, 0.31f));
+        main.duration = isFire ? 1.4f : 3f;
+        switch (kind)
+        {
+            case ParticleKind.Fire:
+                main.startLifetime = new ParticleSystem.MinMaxCurve(0.62f, 1.05f);
+                main.startSpeed = new ParticleSystem.MinMaxCurve(1.7f, 3.1f);
+                // 竖向拉伸的火舌形态（X宽Y高），噪声扰动下呈跳动的火舌而非光球
+                main.startSize3D = true;
+                main.startSizeX = new ParticleSystem.MinMaxCurve(0.9f, 1.8f);
+                main.startSizeY = new ParticleSystem.MinMaxCurve(1.5f, 2.8f);
+                main.startSizeZ = new ParticleSystem.MinMaxCurve(1f, 1f);
+                main.gravityModifier = -0.42f;
+                main.maxParticles = 300;
+                main.startColor = new ParticleSystem.MinMaxGradient(
+                    new Color(1f, 0.55f, 0.10f), new Color(1f, 0.90f, 0.45f));
+                break;
+            case ParticleKind.Smoke:
+                main.startLifetime = new ParticleSystem.MinMaxCurve(3.2f, 4.6f);
+                main.startSpeed = new ParticleSystem.MinMaxCurve(0.3f, 0.7f);
+                main.startSize = new ParticleSystem.MinMaxCurve(1.4f, 2.6f);
+                main.gravityModifier = -0.03f;
+                main.maxParticles = 240;
+                main.startColor = new ParticleSystem.MinMaxGradient(
+                    new Color(0.18f, 0.18f, 0.20f), new Color(0.28f, 0.28f, 0.31f));
+                break;
+            case ParticleKind.Ember:
+                main.startLifetime = new ParticleSystem.MinMaxCurve(1.6f, 3.0f);
+                main.startSpeed = new ParticleSystem.MinMaxCurve(1.8f, 3.8f);
+                main.startSize = new ParticleSystem.MinMaxCurve(0.04f, 0.11f);
+                main.gravityModifier = -0.12f;
+                main.maxParticles = 140;
+                main.startColor = new ParticleSystem.MinMaxGradient(
+                    new Color(1f, 0.80f, 0.35f), new Color(1f, 0.95f, 0.60f));
+                break;
+        }
 
         var shape = ps.shape;
         shape.shapeType = ParticleSystemShapeType.Cone;
-        shape.angle = isFire ? 16f : 11f;
-        shape.radius = isFire ? 0.16f : 0.3f;
+        shape.angle = kind == ParticleKind.Fire ? 30f : (kind == ParticleKind.Ember ? 24f : 14f);
+        shape.radius = kind == ParticleKind.Fire ? 0.4f : (kind == ParticleKind.Ember ? 0.25f : 0.45f);
         shape.rotation = new Vector3(-90f, 0f, 0f);
+
+        // 噪声=火舌乱舞：真火感的核心。火与火星强扰动，烟弱扰动
+        var noise = ps.noise;
+        noise.enabled = true;
+        if (kind == ParticleKind.Fire)
+        {
+            noise.strength = new ParticleSystem.MinMaxCurve(0.8f, 1.6f);
+            noise.frequency = 0.7f;
+            noise.quality = ParticleSystemNoiseQuality.Medium;
+        }
+        else if (kind == ParticleKind.Ember)
+        {
+            noise.strength = new ParticleSystem.MinMaxCurve(1.4f, 2.2f);
+            noise.frequency = 1.1f;
+            noise.quality = ParticleSystemNoiseQuality.Medium;
+        }
+        else
+        {
+            noise.strength = new ParticleSystem.MinMaxCurve(0.25f, 0.5f);
+            noise.frequency = 0.3f;
+            noise.quality = ParticleSystemNoiseQuality.Low;
+        }
+        noise.scrollSpeed = 0.35f;
 
         var col = ps.colorOverLifetime;
         col.enabled = true;
@@ -185,14 +245,30 @@ public class FirePoint : MonoBehaviour
             grad.SetKeys(
                 new[]
                 {
-                    new GradientColorKey(new Color(1f, 0.75f, 0.25f), 0f),
-                    new GradientColorKey(new Color(0.95f, 0.3f, 0.05f), 0.6f),
-                    new GradientColorKey(new Color(0.5f, 0.1f, 0.02f), 1f),
+                    new GradientColorKey(new Color(1f, 0.80f, 0.30f), 0f),
+                    new GradientColorKey(new Color(0.98f, 0.35f, 0.05f), 0.6f),
+                    new GradientColorKey(new Color(0.5f, 0.10f, 0.02f), 1f),
                 },
                 new[]
                 {
                     new GradientAlphaKey(0.95f, 0f),
                     new GradientAlphaKey(0.7f, 0.5f),
+                    new GradientAlphaKey(0f, 1f),
+                });
+        }
+        else if (kind == ParticleKind.Ember)
+        {
+            grad.SetKeys(
+                new[]
+                {
+                    new GradientColorKey(new Color(1f, 0.80f, 0.35f), 0f),
+                    new GradientColorKey(new Color(1f, 0.45f, 0.10f), 0.7f),
+                    new GradientColorKey(new Color(0.6f, 0.12f, 0.02f), 1f),
+                },
+                new[]
+                {
+                    new GradientAlphaKey(1f, 0f),
+                    new GradientAlphaKey(0.85f, 0.6f),
                     new GradientAlphaKey(0f, 1f),
                 });
         }
@@ -206,8 +282,8 @@ public class FirePoint : MonoBehaviour
                 },
                 new[]
                 {
-                    new GradientAlphaKey(0.4f, 0f),
-                    new GradientAlphaKey(0.3f, 0.55f),
+                    new GradientAlphaKey(0.42f, 0f),
+                    new GradientAlphaKey(0.32f, 0.55f),
                     new GradientAlphaKey(0f, 1f),
                 });
         }
@@ -215,9 +291,13 @@ public class FirePoint : MonoBehaviour
 
         var sizeOver = ps.sizeOverLifetime;
         sizeOver.enabled = true;
-        var curve = isFire
-            ? new AnimationCurve(new Keyframe(0f, 0.35f), new Keyframe(0.25f, 1f), new Keyframe(1f, 0.25f))
-            : new AnimationCurve(new Keyframe(0f, 0.6f), new Keyframe(0.5f, 1.3f), new Keyframe(1f, 2.6f));
+        AnimationCurve curve;
+        if (isFire)
+            curve = new AnimationCurve(new Keyframe(0f, 0.25f), new Keyframe(0.3f, 1.1f), new Keyframe(1f, 0.1f));
+        else if (kind == ParticleKind.Ember)
+            curve = new AnimationCurve(new Keyframe(0f, 0.7f), new Keyframe(0.3f, 1f), new Keyframe(1f, 0f));
+        else
+            curve = new AnimationCurve(new Keyframe(0f, 0.6f), new Keyframe(0.5f, 1.3f), new Keyframe(1f, 2.6f));
         sizeOver.size = new ParticleSystem.MinMaxCurve(1f, curve);
 
         var renderer = go.GetComponent<ParticleSystemRenderer>();
@@ -227,11 +307,12 @@ public class FirePoint : MonoBehaviour
         }
         else
         {
-            renderer.material = new Material(Shader.Find(isFire
+            renderer.material = new Material(Shader.Find(isFire || kind == ParticleKind.Ember
                 ? "Legacy Shaders/Particles/Additive"
                 : "Legacy Shaders/Particles/Alpha Blended"));
         }
-        if (isFire) renderer.sortingFudge = -2;
+        if (kind != ParticleKind.Smoke) renderer.sortingFudge = -2;
+        if (kind == ParticleKind.Ember) renderer.sortingFudge = -3;
 
         go.SetActive(true);
         return ps;

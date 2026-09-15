@@ -671,7 +671,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: ab0913a177e362e4eb2c71545ca2f533, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1069,7 +1069,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: ab0913a177e362e4eb2c71545ca2f533, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1325,7 +1325,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: ab0913a177e362e4eb2c71545ca2f533, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2497,7 +2497,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: ab0913a177e362e4eb2c71545ca2f533, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3846,7 +3846,7 @@ MonoBehaviour:
   extinguishable: 1
   damageRadius: 2
   contactDPS: 28
-  fireMaterial: {fileID: 2100000, guid: c78be3d22dffc4a42b08cc41de854c8e, type: 2}
+  fireMaterial: {fileID: 2100000, guid: fd10085d18777044eabc536341ccbcea, type: 2}
   smokeMaterial: {fileID: 2100000, guid: 1a3c14c3ac764f74ea5f07ec54b7e421, type: 2}
 --- !u!4 &667613629
 Transform:
@@ -4278,7 +4278,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: ab0913a177e362e4eb2c71545ca2f533, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4469,7 +4469,7 @@ MonoBehaviour:
   extinguishable: 1
   damageRadius: 1.5
   contactDPS: 22
-  fireMaterial: {fileID: 2100000, guid: c78be3d22dffc4a42b08cc41de854c8e, type: 2}
+  fireMaterial: {fileID: 2100000, guid: fd10085d18777044eabc536341ccbcea, type: 2}
   smokeMaterial: {fileID: 2100000, guid: 1a3c14c3ac764f74ea5f07ec54b7e421, type: 2}
 --- !u!4 &903348610
 Transform:
@@ -5610,7 +5610,7 @@ MonoBehaviour:
   extinguishable: 1
   damageRadius: 2
   contactDPS: 28
-  fireMaterial: {fileID: 2100000, guid: c78be3d22dffc4a42b08cc41de854c8e, type: 2}
+  fireMaterial: {fileID: 2100000, guid: fd10085d18777044eabc536341ccbcea, type: 2}
   smokeMaterial: {fileID: 2100000, guid: 1a3c14c3ac764f74ea5f07ec54b7e421, type: 2}
 --- !u!4 &1227359532
 Transform:
@@ -5880,7 +5880,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: ab0913a177e362e4eb2c71545ca2f533, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6348,7 +6348,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 2c3eefdb7bdd26842a7afe8a50e0a807, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6638,7 +6638,7 @@ MonoBehaviour:
   extinguishable: 0
   damageRadius: 2.4
   contactDPS: 35
-  fireMaterial: {fileID: 2100000, guid: c78be3d22dffc4a42b08cc41de854c8e, type: 2}
+  fireMaterial: {fileID: 2100000, guid: fd10085d18777044eabc536341ccbcea, type: 2}
   smokeMaterial: {fileID: 2100000, guid: 1a3c14c3ac764f74ea5f07ec54b7e421, type: 2}
 --- !u!1 &1441628453
 GameObject:
@@ -6693,7 +6693,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 2c3eefdb7bdd26842a7afe8a50e0a807, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7673,7 +7673,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: ab0913a177e362e4eb2c71545ca2f533, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7760,6 +7760,9 @@ MonoBehaviour:
   smokeDPS: 14
   crouchFactor: 0.35
   towelFactor: 0.4
+  criticalThreshold: 0.3
+  criticalFov: 50
+  normalFov: 70
   hud: {fileID: 541187539}
   resultPanel: {fileID: 1821971368}
 --- !u!114 &1672214111
@@ -7791,6 +7794,7 @@ MonoBehaviour:
   walkSpeed: 3.4
   crouchSpeed: 1.7
   gravity: -18
+  criticalSpeedFactor: 1
   cameraRoot: {fileID: 1774189229}
   mouseSensitivity: 2.2
   pitchLimit: 85
@@ -8259,7 +8263,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: ab0913a177e362e4eb2c71545ca2f533, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -8618,7 +8622,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 2c3eefdb7bdd26842a7afe8a50e0a807, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9068,7 +9072,7 @@ MonoBehaviour:
   extinguishable: 1
   damageRadius: 2
   contactDPS: 28
-  fireMaterial: {fileID: 2100000, guid: c78be3d22dffc4a42b08cc41de854c8e, type: 2}
+  fireMaterial: {fileID: 2100000, guid: fd10085d18777044eabc536341ccbcea, type: 2}
   smokeMaterial: {fileID: 2100000, guid: 1a3c14c3ac764f74ea5f07ec54b7e421, type: 2}
 --- !u!4 &1846705505
 Transform:
@@ -9280,7 +9284,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 2c3eefdb7bdd26842a7afe8a50e0a807, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9671,7 +9675,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: ab0913a177e362e4eb2c71545ca2f533, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
