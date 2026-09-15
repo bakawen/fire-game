@@ -9,6 +9,11 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float crouchFactor = 0.35f;
     [SerializeField, Range(0f, 1f)] private float towelFactor = 0.4f;
 
+    [Header("濒死状态（M5：血量低于阈值视野收窄+移动减速）")]
+    [SerializeField, Range(0f, 1f)] private float criticalThreshold = 0.30f;
+    [SerializeField] private float criticalFov = 50f;
+    [SerializeField] private float normalFov = 70f;
+
     [Header("引用")]
     [SerializeField] private GameHUD hud;
     [SerializeField] private ResultPanelController resultPanel;
@@ -16,6 +21,8 @@ public class PlayerHealth : MonoBehaviour
     public bool HasWetTowel { get; set; }
     public float Health { get; private set; }
     public bool IsDead { get; private set; }
+    /// <summary>濒死状态（M5）：血量低于阈值时触发视野收窄+移动减速。</summary>
+    public bool IsCritical { get; private set; }
 
     private FirstPersonController controller;
     private FirePoint[] firePoints;
@@ -70,6 +77,18 @@ public class PlayerHealth : MonoBehaviour
 
         vignetteAlpha = Mathf.Lerp(vignetteAlpha, 1f - Health / maxHealth, 3f * Time.deltaTime);
         if (hud != null) hud.SetVignette(vignetteAlpha);
+
+        // M5 濒死减速：血量低于阈值时视野收窄+移动减速
+        bool wasCritical = IsCritical;
+        IsCritical = Health < maxHealth * criticalThreshold && !IsDead;
+        if (controller != null)
+            controller.criticalSpeedFactor = IsCritical ? 0.6f : 1f;
+        var cam = Camera.main;
+        if (cam != null)
+        {
+            float targetFov = IsCritical ? criticalFov : normalFov;
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFov, 2f * Time.deltaTime);
+        }
 
         if (Health <= 0f) Die();
     }

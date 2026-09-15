@@ -5,7 +5,7 @@
     "com.unity.modules.particlesystem": "1.0.0",
     "com.unity.modules.physics": "1.0.0",
     "com.unity.textmeshpro": "3.0.9",
-    "cn.tuanjie.codely.bridge": "1.0.80",
-    "cn.tuanjie.ai.generators": "file:../.codely-cli/extensions/TJGenerators/Packages/cn.tuanjie.ai.generators"
+    "cn.tuanjie.ai.generators": "file:../.codely-cli/extensions/TJGenerators/Packages/cn.tuanjie.ai.generators",
+    "cn.tuanjie.codely.bridge": "1.0.81"
   }
 }

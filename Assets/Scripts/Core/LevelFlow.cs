@@ -18,7 +18,8 @@ public class LevelFlow : MonoBehaviour
         Cabinet,
         InitialFireOut,
         Towel,
-        QuizGate
+        QuizGate,
+        DoorCheck
     }
 
     [Serializable]
@@ -43,6 +44,7 @@ public class LevelFlow : MonoBehaviour
     [SerializeField] private CrawlZone crawlZone;
     [SerializeField] private ElevatorTrap elevatorTrap;
     [SerializeField] private InteractableDoor quizGate;
+    [SerializeField] private DoorCheck doorCheck;
 
     [Header("阶段列表（按顺序配置；乱序完成自动跳过）")]
     [SerializeField] private List<Stage> stages = new List<Stage>();
@@ -66,6 +68,7 @@ public class LevelFlow : MonoBehaviour
         if (quizGate != null) quizGate.OnOpened += OnQuizGate;
         if (crawlZone != null) crawlZone.OnStandingDamage += OnCrawl;
         if (elevatorTrap != null) elevatorTrap.OnTriedElevator += OnElevator;
+        if (doorCheck != null) doorCheck.OnDoorChecked += OnDoorChecked;
     }
 
     private void OnDisable()
@@ -78,6 +81,7 @@ public class LevelFlow : MonoBehaviour
         if (quizGate != null) quizGate.OnOpened -= OnQuizGate;
         if (crawlZone != null) crawlZone.OnStandingDamage -= OnCrawl;
         if (elevatorTrap != null) elevatorTrap.OnTriedElevator -= OnElevator;
+        if (doorCheck != null) doorCheck.OnDoorChecked -= OnDoorChecked;
     }
 
     /// <summary>完成第一个匹配该事件源的未完成阶段并推进目标；返回被完成的阶段（无则null）。</summary>
@@ -122,6 +126,13 @@ public class LevelFlow : MonoBehaviour
     private void OnInitialFireOut(FirePoint fp) { ShowHint(Complete(StageSource.InitialFireOut)?.hint); }
     private void OnTowel() { ShowHint(Complete(StageSource.Towel)?.hint); }
     private void OnQuizGate(InteractableDoor door) { ShowHint(Complete(StageSource.QuizGate)?.hint); }
+    private void OnDoorChecked()
+    {
+        var hit = Complete(StageSource.DoorCheck);
+        // 摸门结果的温度判定文案由 DoorCheck 提供（含分支教学）
+        if (hit != null && doorCheck != null) ShowHint(doorCheck.GetResultHint());
+        else if (hit != null) ShowHint(hit.hint);
+    }
 
     private void OnCrawl() { ShowHint(crawlHint); }
     private void OnElevator() { ShowHint(elevatorHint); }

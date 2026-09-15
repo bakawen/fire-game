@@ -10,7 +10,7 @@ public class MainMenuUI : MonoBehaviour
 
     private void Awake()
     {
-        fireScienceButton.onClick.AddListener(() => SceneLoader.Load(SceneNames.Video));
+        fireScienceButton.onClick.AddListener(() => SceneLoader.Load(SceneNames.FireScience));
         playButton.onClick.AddListener(() => SceneLoader.Load(SceneNames.LevelSelect));
         quitButton.onClick.AddListener(GameManager.Instance.QuitGame);
     }

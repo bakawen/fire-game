@@ -9,6 +9,9 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float crouchSpeed = 1.7f;
     [SerializeField] private float gravity = -18f;
 
+    [Header("濒死减速（M5：PlayerHealth 设置，1=正常 0.6=濒死）")]
+    [HideInInspector] public float criticalSpeedFactor = 1f;
+
     [Header("视角")]
     [SerializeField] private Transform cameraRoot;
     [SerializeField] private float mouseSensitivity = 2.2f;
@@ -88,7 +91,7 @@ public class FirstPersonController : MonoBehaviour
         if (controller.isGrounded && verticalVelocity < 0f) verticalVelocity = -2f;
         verticalVelocity += gravity * Time.deltaTime;
 
-        float speed = IsCrouching ? crouchSpeed : walkSpeed;
+        float speed = (IsCrouching ? crouchSpeed : walkSpeed) * criticalSpeedFactor;
         Vector3 velocity = input * speed + Vector3.up * verticalVelocity;
         // 仅在有实际位移时调用 Move（避免纯旋转时的碰撞解算把玩家推出）
         if (velocity.sqrMagnitude > 0.01f)

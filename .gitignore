@@ -52,3 +52,20 @@ Thumbs.db
 
 # Video renders (can regenerate)
 screenshots/*.mp4
+screenshots/*.gif
+screenshots/science/
+
+# Build artifacts
+Build.zip
+
+# Verification screenshots (temp, can regenerate)
+screenshots/floor*.png
+screenshots/apt_*.png
+screenshots/truck_*.png
+screenshots/blackplane_*.png
+Assets/Scenes/05_Apartment/LightingData.asset  
+Assets/Scenes/05_Apartment/LightingData.asset.meta  
+# Baked lighting (regenerate with Unity > Lighting > Bake)
+Assets/Scenes/05_Apartment/Lightmap-*.png
+Assets/Scenes/05_Apartment/Lightmap-*.exr
+Assets/Scenes/05_Apartment/ReflectionProbe-*.exr
