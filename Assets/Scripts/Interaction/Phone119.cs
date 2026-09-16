@@ -37,7 +37,8 @@ public class Phone119 : MonoBehaviour, IInteractable
         optionA = "“着火了！着火了！快来人啊！”",
         optionB = "“XX路XX小区X栋X单元，X楼住宅起火。”",
         optionC = "“我家人被困了，你们快点来！”",
-        optionD = "“请问是消防队吗？”"
+        optionD = "“请问是消防队吗？”",
+        correctIndex = 1
     };
     [SerializeField] private QuizRound round2 = new QuizRound
     {
