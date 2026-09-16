@@ -115,14 +115,20 @@ public class FirePoint : MonoBehaviour
         if (firePS != null)
         {
             var em = firePS.emission;
-            em.rateOverTime = 95f * Intensity;
+            em.rateOverTime = 90f * Intensity;
+            // 火势蔓延：粒子尺寸和发射范围随强度膨胀，从0.3→1.0火焰扩散到大火
+            var shp = firePS.shape;
+            shp.radius = 0.25f + 0.55f * Intensity;
+            var mn3D = firePS.main;
+            mn3D.startSizeX = new ParticleSystem.MinMaxCurve(0.5f + 0.5f * Intensity, 0.9f + 0.9f * Intensity);
+            mn3D.startSizeY = new ParticleSystem.MinMaxCurve(0.9f + 0.9f * Intensity, 1.6f + 1.5f * Intensity);
             if (Intensity > 0.03f) { if (!firePS.isPlaying) firePS.Play(); }
             else if (firePS.isPlaying) firePS.Stop();
         }
         if (smokePS != null)
         {
             var em = smokePS.emission;
-            em.rateOverTime = Mathf.Max(14f, 48f * Intensity);
+            em.rateOverTime = Mathf.Max(14f, 45f * Intensity);
             if (Intensity > 0.03f) { if (!smokePS.isPlaying) smokePS.Play(); }
             else if (smokePS.isPlaying) smokePS.Stop();
         }
@@ -139,7 +145,7 @@ public class FirePoint : MonoBehaviour
             // 双频闪烁：低频摇曳打底 + 高频抖动叠加，火光永不熄灭式归零
             float flick = Mathf.PerlinNoise(seed, Time.time * 6.5f) * 0.6f
                         + Mathf.PerlinNoise(seed + 37f, Time.time * 16f) * 0.4f;
-            fireLight.intensity = 6.5f * Intensity * (0.72f + 0.35f * flick);
+            fireLight.intensity = 3.0f * Intensity * (0.72f + 0.35f * flick);
         }
     }
 
@@ -154,8 +160,8 @@ public class FirePoint : MonoBehaviour
         lightGo.transform.localPosition = new Vector3(0f, 0.9f, 0f);
         fireLight = lightGo.AddComponent<Light>();
         fireLight.type = LightType.Point;
-        fireLight.color = new Color(1f, 0.42f, 0.12f);
-        fireLight.range = 11f;
+        fireLight.color = new Color(1f, 0.35f, 0.08f);
+        fireLight.range = 8f;
         fireLight.shadows = LightShadows.None;
         fireLight.enabled = false;
     }
@@ -180,22 +186,22 @@ public class FirePoint : MonoBehaviour
                 main.startSpeed = new ParticleSystem.MinMaxCurve(1.7f, 3.1f);
                 // 竖向拉伸的火舌形态（X宽Y高），噪声扰动下呈跳动的火舌而非光球
                 main.startSize3D = true;
-                main.startSizeX = new ParticleSystem.MinMaxCurve(0.9f, 1.8f);
-                main.startSizeY = new ParticleSystem.MinMaxCurve(1.5f, 2.8f);
+                main.startSizeX = new ParticleSystem.MinMaxCurve(1.2f, 2.0f);
+                main.startSizeY = new ParticleSystem.MinMaxCurve(1.8f, 3.2f);
                 main.startSizeZ = new ParticleSystem.MinMaxCurve(1f, 1f);
                 main.gravityModifier = -0.42f;
                 main.maxParticles = 300;
                 main.startColor = new ParticleSystem.MinMaxGradient(
-                    new Color(1f, 0.55f, 0.10f), new Color(1f, 0.90f, 0.45f));
+                    new Color(0.70f, 0.28f, 0.06f), new Color(0.85f, 0.50f, 0.12f));
                 break;
             case ParticleKind.Smoke:
                 main.startLifetime = new ParticleSystem.MinMaxCurve(3.2f, 4.6f);
                 main.startSpeed = new ParticleSystem.MinMaxCurve(0.3f, 0.7f);
-                main.startSize = new ParticleSystem.MinMaxCurve(1.4f, 2.6f);
+                main.startSize = new ParticleSystem.MinMaxCurve(1.5f, 2.8f);
                 main.gravityModifier = -0.03f;
                 main.maxParticles = 240;
                 main.startColor = new ParticleSystem.MinMaxGradient(
-                    new Color(0.18f, 0.18f, 0.20f), new Color(0.28f, 0.28f, 0.31f));
+                    new Color(0.10f, 0.10f, 0.12f), new Color(0.18f, 0.18f, 0.22f));
                 break;
             case ParticleKind.Ember:
                 main.startLifetime = new ParticleSystem.MinMaxCurve(1.6f, 3.0f);
@@ -245,15 +251,15 @@ public class FirePoint : MonoBehaviour
             grad.SetKeys(
                 new[]
                 {
-                    new GradientColorKey(new Color(1f, 0.80f, 0.30f), 0f),
-                    new GradientColorKey(new Color(0.98f, 0.35f, 0.05f), 0.6f),
-                    new GradientColorKey(new Color(0.5f, 0.10f, 0.02f), 1f),
+                    new GradientColorKey(new Color(0.75f, 0.34f, 0.08f), 0f),
+                    new GradientColorKey(new Color(0.5f, 0.16f, 0.02f), 0.6f),
+                    new GradientColorKey(new Color(0.35f, 0.08f, 0.01f), 1f),
                 },
                 new[]
                 {
-                    new GradientAlphaKey(0.95f, 0f),
-                    new GradientAlphaKey(0.7f, 0.5f),
-                    new GradientAlphaKey(0f, 1f),
+                    new GradientAlphaKey(1.0f, 0f),
+                    new GradientAlphaKey(0.85f, 0.5f),
+                    new GradientAlphaKey(0.15f, 1f),
                 });
         }
         else if (kind == ParticleKind.Ember)
@@ -282,8 +288,8 @@ public class FirePoint : MonoBehaviour
                 },
                 new[]
                 {
-                    new GradientAlphaKey(0.42f, 0f),
-                    new GradientAlphaKey(0.32f, 0.55f),
+                    new GradientAlphaKey(0.5f, 0f),
+                    new GradientAlphaKey(0.35f, 0.55f),
                     new GradientAlphaKey(0f, 1f),
                 });
         }
