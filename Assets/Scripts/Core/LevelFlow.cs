@@ -101,6 +101,9 @@ public class LevelFlow : MonoBehaviour
         return hit;
     }
 
+    /// <summary>开场惊醒提示（复用教程提示UI，非阶段事件）。</summary>
+    public void ShowIntroHint(string text) => ShowHint(text);
+
     /// <summary>显示第一个未完成阶段的目标文案。</summary>
     private void RefreshObjective()
     {

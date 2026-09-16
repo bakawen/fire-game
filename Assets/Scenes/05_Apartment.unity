@@ -112574,6 +112574,79 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 542714596}
   m_Mesh: {fileID: 4300012, guid: 8537129dc3fbbe44186add4eea186b85, type: 3}
+--- !u!1001 &542840050
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 98.934814
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 98.934814
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 98.934814
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.9
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5.0865426
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -5.6
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.6087614
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7933533
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_Name
+      value: Vacuum_WrongGen_DELETE_LATER
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0be665628baf0e24e86f04dd2119b315, type: 3}
 --- !u!1 &543949325
 GameObject:
   m_ObjectHideFlags: 0
@@ -224196,21 +224269,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   events:
-  - firePoint: {fileID: 1095698923}
-    igniteAtSeconds: 20
-    growthPerSecond: 0.11
-  - firePoint: {fileID: 1737531290}
-    igniteAtSeconds: 40
-    growthPerSecond: 0.12
   - firePoint: {fileID: 335014753}
-    igniteAtSeconds: 60
+    igniteAtSeconds: 70
+    growthPerSecond: 0.1
+  - firePoint: {fileID: 1095698923}
+    igniteAtSeconds: 25
     growthPerSecond: 0.1
   - firePoint: {fileID: 1537571129}
-    igniteAtSeconds: 80
-    growthPerSecond: 0.13
-  - firePoint: {fileID: 895640435}
-    igniteAtSeconds: 100
-    growthPerSecond: 0.09
+    igniteAtSeconds: 90
+    growthPerSecond: 0.0025
+  - firePoint: {fileID: 1737531290}
+    igniteAtSeconds: 45
+    growthPerSecond: 0.11
   smokeVolumes:
   - {fileID: 2062011279}
   - {fileID: 1472675268}
@@ -299329,8 +299399,8 @@ MonoBehaviour:
   burnOnStart: 0
   startIntensity: 0.3
   growthPerSecond: 0.06
-  extinguishable: 1
-  damageRadius: 3.6
+  extinguishable: 0
+  damageRadius: 2.2
   contactDPS: 26
   fireMaterial: {fileID: 2100000, guid: fd10085d18777044eabc536341ccbcea, type: 2}
   smokeMaterial: {fileID: 2100000, guid: 1a3c14c3ac764f74ea5f07ec54b7e421, type: 2}
@@ -299343,7 +299413,7 @@ Transform:
   m_GameObject: {fileID: 1537571128}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.5, y: 10.2, z: -6.2}
+  m_LocalPosition: {x: -6.9010735, y: 4.23, z: -5.5980105}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -428058,3 +428128,4 @@ SceneRoots:
   - {fileID: 1725053799}
   - {fileID: 372020241}
   - {fileID: 1805214032}
+  - {fileID: 542840050}
