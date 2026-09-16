@@ -145,7 +145,7 @@ public class FirePoint : MonoBehaviour
             // 双频闪烁：低频摇曳打底 + 高频抖动叠加，火光永不熄灭式归零
             float flick = Mathf.PerlinNoise(seed, Time.time * 6.5f) * 0.6f
                         + Mathf.PerlinNoise(seed + 37f, Time.time * 16f) * 0.4f;
-            fireLight.intensity = 3.0f * Intensity * (0.72f + 0.35f * flick);
+            fireLight.intensity = 6.0f * Intensity * (0.72f + 0.35f * flick);
         }
     }
 
@@ -160,8 +160,8 @@ public class FirePoint : MonoBehaviour
         lightGo.transform.localPosition = new Vector3(0f, 0.9f, 0f);
         fireLight = lightGo.AddComponent<Light>();
         fireLight.type = LightType.Point;
-        fireLight.color = new Color(1f, 0.35f, 0.08f);
-        fireLight.range = 8f;
+        fireLight.color = new Color(1f, 0.42f, 0.12f);
+        fireLight.range = 3.5f;
         fireLight.shadows = LightShadows.None;
         fireLight.enabled = false;
     }
