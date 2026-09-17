@@ -69,3 +69,12 @@ Assets/Scenes/05_Apartment/LightingData.asset.meta
 Assets/Scenes/05_Apartment/Lightmap-*.png
 Assets/Scenes/05_Apartment/Lightmap-*.exr
 Assets/Scenes/05_Apartment/ReflectionProbe-*.exr
+
+# Dev screenshots (temp, can regenerate)
+screenshots/
+
+# TJGenerators AI tool cache
+Assets/TJGenerators/
+
+# Orphan metas of ignored baked lighting
+Assets/Scenes/05_Apartment/

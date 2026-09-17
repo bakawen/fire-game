@@ -1,0 +1,1 @@
+﻿Compress-Archive -Path 'E:\Unity Work\Unity Fire Game\Build\FireEscapeGame\*' -DestinationPath 'E:\Unity Work\Unity Fire Game\Build.zip' -Force

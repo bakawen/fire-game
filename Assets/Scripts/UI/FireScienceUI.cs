@@ -21,6 +21,8 @@ public class FireScienceUI : MonoBehaviour
     [SerializeField] private ScrollRect cardScroll;
     [SerializeField] private RectTransform cardContainer;
     [SerializeField] private GameObject cardTemplate;
+    [Header("滚轮速度（默认值 1 对长卡片流过慢）")]
+    [SerializeField] private float cardScrollSensitivity = 8f;
 
     [Header("问答视图")]
     [SerializeField] private GameObject quizView;
@@ -63,6 +65,7 @@ public class FireScienceUI : MonoBehaviour
 
     private void Awake()
     {
+        if (cardScroll != null) cardScroll.scrollSensitivity = cardScrollSensitivity;
         backButton.onClick.AddListener(() => SceneLoader.Load(SceneNames.MainMenu));
         quizOptionA.onClick.AddListener(() => AnswerQuiz(0));
         quizOptionB.onClick.AddListener(() => AnswerQuiz(1));

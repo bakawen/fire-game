@@ -2,12 +2,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>游戏内 HUD：任务目标、用时计时、交互提示、受伤红晕、灭火器剂量、返回关卡选择。</summary>
+/// <summary>游戏内 HUD：任务目标、用时计时、交互提示、受伤红晕、灭火器剂量。返回入口由 Esc 暂停面板承担。</summary>
 public class GameHUD : MonoBehaviour
 {
     [SerializeField] private TMP_Text objectiveText;
     [SerializeField] private TMP_Text timerText;
-    [SerializeField] private Button backButton;
 
     [Header("M3 扩展")]
     [SerializeField] private TMP_Text promptText;
@@ -16,16 +15,14 @@ public class GameHUD : MonoBehaviour
     [SerializeField] private Image doseFillImage;
     [SerializeField] private PlayerInteraction player;
 
-    public float ElapsedSeconds => Time.timeSinceLevelLoad;
+    private float elapsed;   // 缩放时间累加：Esc 暂停（timeScale=0）时计时冻结，结算用时口径一致
 
-    private void Awake()
-    {
-        backButton.onClick.AddListener(() => SceneLoader.Load(SceneNames.LevelSelect));
-    }
+    public float ElapsedSeconds => elapsed;
 
     private void Update()
     {
-        int total = (int)ElapsedSeconds;
+        if (Time.timeScale > 0.01f) elapsed += Time.deltaTime;
+        int total = (int)elapsed;
         timerText.text = $"{total / 60:00}:{total % 60:00}";
 
         if (player != null)

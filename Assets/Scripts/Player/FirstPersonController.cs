@@ -34,6 +34,8 @@ public class FirstPersonController : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        // Esc 真暂停由 PauseUI 承担（自轮询 Esc + 面板 + timeScale 状态机），只挂在关卡玩家上
+        if (GetComponent<PauseUI>() == null) gameObject.AddComponent<PauseUI>();
         if (cameraRoot == null)
         {
             var cam = GetComponentInChildren<Camera>();
@@ -120,15 +122,9 @@ public class FirstPersonController : MonoBehaviour
             return;
         }
 
-        // Esc 解锁光标，让玩家可以点击 HUD 按钮（如返回关卡选择）
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-            return;
-        }
+        // Esc 由 PauseUI 自行轮询处理（Update 不受 timeScale 影响，暂停中才能再按 Esc 恢复）
 
-        // 游戏进行中：点击画面重新锁定（例如按 Esc 后恢复）
+        // 游戏进行中：点击画面重新锁定（例如暂停面板"继续游戏"后）
         if (Cursor.lockState != CursorLockMode.Locked && Input.GetMouseButtonDown(0))
             LockCursor();
     }
