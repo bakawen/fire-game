@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>灭火器：按E拾取手持，按住左键喷射白色粉雾；对锥形范围内可灭火点削减强度；剂量有限。</summary>
@@ -13,6 +14,9 @@ public class FireExtinguisher : MonoBehaviour, IInteractable, IHoldable
     [SerializeField] private ParticleSystem sprayParticles;
     [SerializeField] private Transform nozzleOverride;
     [SerializeField] private Material sprayMaterial;
+
+    /// <summary>被拾取时触发（GuidanceChecklist 推进步骤）。</summary>
+    public event Action OnPickedUp;
 
     public string PromptText => "按 E 拾取灭火器";
     public bool CanInteract => !held;
@@ -32,6 +36,7 @@ public class FireExtinguisher : MonoBehaviour, IInteractable, IHoldable
         held = true;
         player.PickUp(this, gameObject);
         firePoints = FindObjectsOfType<FirePoint>();
+        OnPickedUp?.Invoke();
     }
 
     public void TickHeld()

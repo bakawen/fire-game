@@ -120,6 +120,7 @@ public class TutorialUI : MonoBehaviour
     public void ShowHint(string text)
     {
         if (hintText == null) return;
+        if (string.IsNullOrEmpty(text)) return;   // 空文案=图标化引导已接管该步骤，不弹文字条
         hintText.text = text;
         hintText.gameObject.SetActive(true);
         holdTimer = hintHoldSeconds;

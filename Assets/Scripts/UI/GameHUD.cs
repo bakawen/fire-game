@@ -56,6 +56,12 @@ public class GameHUD : MonoBehaviour
         objectiveText.text = text;
     }
 
+    /// <summary>图标化引导接管时隐藏静态目标文字行（GuidanceChecklist 用）。</summary>
+    public void SetObjectiveVisible(bool visible)
+    {
+        if (objectiveText != null) objectiveText.gameObject.SetActive(visible);
+    }
+
     /// <summary>受伤红晕（0=无伤，1=濒死）。</summary>
     public void SetVignette(float alpha)
     {

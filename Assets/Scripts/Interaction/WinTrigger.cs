@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>胜利触发器：玩家到达楼梯间安全出口即通关。</summary>
@@ -7,6 +8,9 @@ public class WinTrigger : MonoBehaviour
     [SerializeField] private ResultPanelController resultPanel;
     [SerializeField] private GameHUD hud;
     [SerializeField, TextArea(3, 8)] private string knowledgeDetailOverride;
+
+    /// <summary>通关时触发（GuidanceChecklist 推进最终步骤）。</summary>
+    public event Action OnWin;
 
     private bool won;
 
@@ -21,6 +25,7 @@ public class WinTrigger : MonoBehaviour
         if (other.GetComponentInParent<FirstPersonController>() == null) return;
 
         won = true;
+        OnWin?.Invoke();
         float t = hud != null ? hud.ElapsedSeconds : 0f;
         int total = (int)t;
         string detail = !string.IsNullOrEmpty(knowledgeDetailOverride) ? knowledgeDetailOverride :
