@@ -45329,8 +45329,8 @@ MonoBehaviour:
   criticalThreshold: 0.3
   criticalFov: 50
   normalFov: 70
-  hud: {fileID: 0}
-  resultPanel: {fileID: 0}
+  hud: {fileID: 223988417}
+  resultPanel: {fileID: 581423615}
 --- !u!114 &199505796
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -225021,7 +225021,6 @@ Transform:
   - {fileID: 1197865984}
   - {fileID: 492017124}
   - {fileID: 1575612701}
-  - {fileID: 1170466663}
   - {fileID: 1872358315}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -227280,52 +227279,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1017606091530846216, guid: c5be39b879c83f54d9bbfebe68c809be, type: 3}
   m_PrefabInstance: {fileID: 1168904948}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1170466662
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1170466663}
-  - component: {fileID: 1170466664}
-  m_Layer: 0
-  m_Name: CrawlZone_Stairwell3F
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1170466663
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1170466662}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.9, y: 8.5, z: -6.2}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1159660310}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1170466664
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1170466662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9eed0031026f2614cb28d5abaee37c1e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  highSmokeStandingDPS: 34
-  highSmokeCrouchDPS: 6
 --- !u!1 &1170815760
 GameObject:
   m_ObjectHideFlags: 0
