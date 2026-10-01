@@ -16,6 +16,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private SpawnPoint[] spawnPoints;
     [SerializeField] private PlayerHealth playerHealth;
     [SerializeField] private FireSpreadManager fireSpread;
+    [SerializeField] private FireZoneGraph zoneGraph;   // 办公楼活火场：难度作用于起源区增长
     [SerializeField] private GameHUD hud;
     [SerializeField] private TutorialUI tutorial;
 
@@ -25,7 +26,13 @@ public class SpawnManager : MonoBehaviour
     private void Start()
     {
         if (spawnPoints == null || spawnPoints.Length == 0) return;
-        int index = Random.Range(0, spawnPoints.Length);
+        // 同局重试：死亡后"重新开始"——同一出生点重做同一道火场题
+        int index;
+        if (RetryRun.Active && RetryRun.SpawnIndex >= 0 && RetryRun.SpawnIndex < spawnPoints.Length)
+            index = RetryRun.SpawnIndex;
+        else
+            index = Random.Range(0, spawnPoints.Length);
+        RetryRun.SpawnIndex = index;
         CurrentIndex = index;
         Current = spawnPoints[index];
         ApplySpawn();
@@ -43,8 +50,10 @@ public class SpawnManager : MonoBehaviour
             if (cc != null) cc.enabled = true;
         }
 
-        // 火势时间表按难度缩放：三层出生火势更早失控
+        // 火势难度按出生点缩放：旧管理器（时间表）/ 活火场图（起源增长）二选一接线
         if (fireSpread != null && Current.difficultyScale != 1f)
             fireSpread.ApplyDifficultyScale(Current.difficultyScale);
+        if (zoneGraph != null && Current.difficultyScale != 1f)
+            zoneGraph.SetDifficulty(Current.difficultyScale);
     }
 }

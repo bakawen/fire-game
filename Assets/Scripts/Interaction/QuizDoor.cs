@@ -1,9 +1,13 @@
-using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>知识问答门（B4）：回答消防选择题才能开启的门，答错短暂锁闭。</summary>
+/// <summary>
+/// 学习型问答门（活火场版）：开门前展示一道消防选择题——答对直接开门；
+/// 答错不锁门，显示正确答案与解释后同样放行（去掉旧版的锁门惩罚——答题本身即学习）。
+/// 沿用原问答门的序列化题库与 UI 引用，场景数据无需改动。仅办公楼场景使用。
+/// </summary>
 [RequireComponent(typeof(InteractableDoor))]
 public class QuizDoor : MonoBehaviour
 {
@@ -14,14 +18,14 @@ public class QuizDoor : MonoBehaviour
         [TextArea(1, 2)] public string optionA;
         [TextArea(1, 2)] public string optionB;
         [TextArea(1, 2)] public string optionC;
-        public int correctIndex; // 0=A 1=B 2=C
-        [TextArea(1, 2)] public string explanation;
+        public int correctIndex;      // 0=A 1=B 2=C
+        [TextArea(2, 3)] public string explanation;
     }
 
-    [Header("题目")]
+    [Header("题库")]
     [SerializeField] private QuizQuestion[] questions;
 
-    [Header("UI引用")]
+    [Header("UI 引用")]
     [SerializeField] private GameObject quizPanel;
     [SerializeField] private TMP_Text questionText;
     [SerializeField] private Button optionAButton;
@@ -29,8 +33,9 @@ public class QuizDoor : MonoBehaviour
     [SerializeField] private Button optionCButton;
     [SerializeField] private TMP_Text feedbackText;
 
-    [Header("行为")]
-    [SerializeField] private float wrongLockSeconds = 5f;
+    [Header("文案")]
+    [SerializeField] private string correctPrefix = "回答正确！";
+    [SerializeField] private string wrongPrefix = "回答错误。正确答案是";
 
     private InteractableDoor door;
     private QuizQuestion current;
@@ -39,14 +44,14 @@ public class QuizDoor : MonoBehaviour
     private void Awake()
     {
         door = GetComponent<InteractableDoor>();
-        // 开门拦截：未答完题时按E先弹问答
         door.OpenInterceptor = p =>
         {
             if (ShouldAsk()) { Ask(); return true; }
             return false;
         };
-        BindButtons();
-        Hide();
+        optionAButton.onClick.AddListener(() => Answer(0));
+        optionBButton.onClick.AddListener(() => Answer(1));
+        optionCButton.onClick.AddListener(() => Answer(2));
     }
 
     private bool ShouldAsk()
@@ -54,7 +59,7 @@ public class QuizDoor : MonoBehaviour
         return questions != null && questions.Length > 0 && !door.IsOpen && !answered;
     }
 
-    /// <summary>玩家尝试开门时被拦截：先答题（由门事件驱动，本关由 LevelFlow 调用）。</summary>
+    /// <summary>玩家尝试开门被拦截：展示题目与选项。</summary>
     public void Ask()
     {
         if (!ShouldAsk()) return;
@@ -63,6 +68,9 @@ public class QuizDoor : MonoBehaviour
         optionAButton.GetComponentInChildren<TMP_Text>().text = current.optionA;
         optionBButton.GetComponentInChildren<TMP_Text>().text = current.optionB;
         optionCButton.GetComponentInChildren<TMP_Text>().text = current.optionC;
+        optionAButton.gameObject.SetActive(true);
+        optionBButton.gameObject.SetActive(true);
+        optionCButton.gameObject.SetActive(true);
         feedbackText.text = "";
         quizPanel.SetActive(true);
         Time.timeScale = 0f;
@@ -72,58 +80,47 @@ public class QuizDoor : MonoBehaviour
 
     private void Answer(int index)
     {
-        if (current == null) return;
-        if (index == current.correctIndex)
+        if (current == null || answered) return;
+        answered = true;   // 首次作答即完成学习，无论对错都不再弹第二次
+
+        char letter = index == 0 ? 'A' : index == 1 ? 'B' : 'C';
+        bool correct = index == current.correctIndex;
+        if (correct)
         {
-            answered = true;
-            feedbackText.text = "回答正确！" + current.explanation;
-            // timeScale=0 时 Invoke 不计时：先恢复时间再开门
-            Time.timeScale = 1f;
-            Invoke(nameof(CloseAndOpen), 1.2f);
+            feedbackText.text = $"<color=#6FDE78>{correctPrefix}</color>{current.explanation}";
         }
         else
         {
-            feedbackText.text = "回答错误，门暂时锁闭 " + wrongLockSeconds + " 秒后可重试。" + current.explanation;
-            // 惩罚计时用真实时间（unscaled，不受timeScale=0影响）
-            StartCoroutine(RetryRoutine());
+            string correctLetter = current.correctIndex == 0 ? "A" : current.correctIndex == 1 ? "B" : "C";
+            string correctText = current.correctIndex == 0 ? current.optionA : current.correctIndex == 1 ? current.optionB : current.optionC;
+            feedbackText.text = $"<color=#F25940>{wrongPrefix} {correctLetter}：{correctText}</color>\n{current.explanation}";
         }
+
+        // 高亮正确按钮（绿框提示），答错的选项不再响应
+        SetButtonsInteractable(false);
+
+        // 学习完成即放行：答对 1.2s、答错多留 1s 读正确答案
+        Time.timeScale = 1f;
+        Invoke(nameof(OpenAndHide), correct ? 1.2f : 2.2f);
     }
 
-    private System.Collections.IEnumerator RetryRoutine()
+    private void SetButtonsInteractable(bool on)
     {
-        float t = 0f;
-        while (t < wrongLockSeconds)
-        {
-            t += Time.unscaledDeltaTime;
-            yield return null;
-        }
-        Hide();
+        optionAButton.interactable = on;
+        optionBButton.interactable = on;
+        optionCButton.interactable = on;
     }
 
-    private void CloseAndOpen()
-    {
-        Hide();
-        // 正确后由外部直接开门
-        if (!door.IsOpen)
-        {
-            var player = FindObjectOfType<PlayerInteraction>();
-            door.Interact(player);
-        }
-    }
-
-    private void Hide()
+    private void OpenAndHide()
     {
         if (quizPanel != null) quizPanel.SetActive(false);
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-    }
-
-    // Inspector 接线用
-    public void BindButtons()
-    {
-        optionAButton.onClick.AddListener(() => Answer(0));
-        optionBButton.onClick.AddListener(() => Answer(1));
-        optionCButton.onClick.AddListener(() => Answer(2));
+        if (!door.IsOpen)
+        {
+            var player = FindFirstObjectByType<PlayerInteraction>();
+            door.Interact(player);
+        }
     }
 }

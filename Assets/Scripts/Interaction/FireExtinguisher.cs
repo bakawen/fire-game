@@ -15,6 +15,11 @@ public class FireExtinguisher : MonoBehaviour, IInteractable, IHoldable
     [SerializeField] private Transform nozzleOverride;
     [SerializeField] private Material sprayMaterial;
 
+    [Header("办公楼决策关：对已成势火喷射的教学反转（宿舍关保持关闭）")]
+    [SerializeField] private bool trackIneffectiveSpray = false;
+    [SerializeField, TextArea(1, 3)] private string ineffectiveHint = "火势已越过初期阶段！灭火器无力回天——立即撤离，不要恋战！";
+    [SerializeField] private float ineffectiveHintAtSeconds = 2f;
+
     /// <summary>被拾取时触发（GuidanceChecklist 推进步骤）。</summary>
     public event Action OnPickedUp;
 
@@ -22,9 +27,14 @@ public class FireExtinguisher : MonoBehaviour, IInteractable, IHoldable
     public bool CanInteract => !held;
     public float Dose => dose;
 
+    /// <summary>规则牌"灭火器过期"：剂量减半（巡检签视觉由导演控制）。</summary>
+    public void ApplyExpiredInspection() => dose = 0.5f;
+
     private bool held;
     private float dose = 1f;
     private FirePoint[] firePoints;
+    private float bigFireSpray;        // 对不可灭大火的累计喷射时长（教学反转+决策回顾）
+    private bool ineffectiveHintShown;
 
     private void Awake()
     {
@@ -47,12 +57,44 @@ public class FireExtinguisher : MonoBehaviour, IInteractable, IHoldable
             dose = Mathf.Max(0f, dose - Time.deltaTime / totalDoseSeconds);
             if (firePoints == null) firePoints = FindObjectsOfType<FirePoint>();
             ExtinguishInCone();
+            // 教学反转（办公楼）：对着已成势的大火喷——剂量在流走但火毫发无损
+            if (trackIneffectiveSpray && PointingAtBigFire())
+            {
+                bigFireSpray += Time.deltaTime;
+                DecisionLedger.AddBigFireSpray(Time.deltaTime);
+                if (!ineffectiveHintShown && bigFireSpray >= ineffectiveHintAtSeconds)
+                {
+                    ineffectiveHintShown = true;
+                    DecisionLedger.MarkIneffectiveHintShown();
+                    var tutorial = FindObjectsOfType<TutorialUI>();
+                    if (tutorial != null && tutorial.Length > 0) tutorial[0].ShowHint(ineffectiveHint);
+                }
+            }
         }
         if (sprayParticles != null)
         {
             if (spraying && !sprayParticles.isPlaying) sprayParticles.Play();
             if (!spraying && sprayParticles.isPlaying) sprayParticles.Stop();
         }
+    }
+
+    /// <summary>喷射锥内是否有"燃烧中但不可灭"的火点（对它喷射=无效扑救）。</summary>
+    private bool PointingAtBigFire()
+    {
+        Camera cam = Camera.main;
+        if (cam == null || firePoints == null) return false;
+        Vector3 origin = cam.transform.position;
+        Vector3 dir = cam.transform.forward;
+        foreach (var fp in firePoints)
+        {
+            if (fp == null || !fp.IsBurning || fp.Extinguishable) continue;
+            Vector3 to = fp.transform.position + Vector3.up * 0.3f - origin;
+            float dist = to.magnitude;
+            if (dist > sprayRange + fp.DamageRadius) continue;
+            if (Vector3.Angle(dir, to) > sprayAngle) continue;
+            return true;
+        }
+        return false;
     }
 
     private void ExtinguishInCone()

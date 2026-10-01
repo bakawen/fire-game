@@ -21,6 +21,7 @@ public class PathGuide : MonoBehaviour
 
     private Transform player;
     private Transform target;
+    private Transform[] viaPoints;      // 途经点链（办公楼"安全路线"引导：箭头沿指定路线而非最短路）
     private float nextRefresh;
     private static readonly NavMeshPath path = new NavMeshPath();
     private GameObject[] arrows;
@@ -91,7 +92,14 @@ public class PathGuide : MonoBehaviour
 
     public void SetTarget(Transform t)
     {
+        SetTarget(t, null);
+    }
+
+    /// <summary>带途经点的目标设置：箭头沿 玩家→途经点依次→目标 的路线铺设（用于指定安全疏散路线）。</summary>
+    public void SetTarget(Transform t, Transform[] via)
+    {
         target = t;
+        viaPoints = via;
         if (target == null) { Hide(); return; }
         nextRefresh = 0f;
         Rebuild();
@@ -129,15 +137,76 @@ public class PathGuide : MonoBehaviour
 
     private void Rebuild()
     {
-        if (!NavMesh.CalculatePath(player.position, target.position, NavMesh.AllAreas, path) ||
-            path.status != NavMeshPathStatus.PathComplete)
+        // 目标投影：墙挂目标（配电箱/报警按钮等）先射线探地；终点若落在安装体/家具顶面，
+        // 用 SamplePosition 兜到周边地面
+        Vector3 goalRaw = target.position;
+        if (Physics.Raycast(goalRaw + Vector3.up * 0.5f, Vector3.down, out var ghit, 8f, ~0, QueryTriggerInteraction.Ignore))
+            goalRaw = ghit.point;
+        Vector3 goal = goalRaw;
+        if (NavMesh.SamplePosition(goalRaw, out var snap, 2.5f, NavMesh.AllAreas))
+            goal = snap.position;
+
+        // 途经点链（办公楼安全路线）：分段算路后拼成一条完整拐点链
+        var cornerList = new System.Collections.Generic.List<Vector3>();
+        if (viaPoints != null && viaPoints.Length > 0)
+        {
+            Vector3 cur = SampleNav(player.position);
+            bool chainOk = true;
+            foreach (var vp in viaPoints)
+            {
+                if (vp == null) continue;
+                if (!Segment(cur, vp.position, cornerList)) { chainOk = false; break; }
+                cur = SampleNav(vp.position);
+            }
+            if (chainOk && Segment(cur, goal, cornerList))
+            {
+                PlaceArrows(cornerList);
+                return;
+            }
+            // 链路任一段失败 → 退回直达
+        }
+
+        // 接受 PathPartial：目标正下方常被家具雕刻成小口袋，
+        // Partial 路线的末拐点=图上可达的最近点（箭头领到目标跟前，最后由3D箭头指点）
+        bool ok = NavMesh.CalculatePath(player.position, goal, NavMesh.AllAreas, path)
+            && (path.status == NavMeshPathStatus.PathComplete || path.status == NavMeshPathStatus.PathPartial)
+            && path.corners.Length >= 2;
+        if (!ok && goal != goalRaw)
+        {
+            // 吸附点不可达时退回投影点原样再试
+            goal = goalRaw;
+            ok = NavMesh.CalculatePath(player.position, goal, NavMesh.AllAreas, path)
+                && (path.status == NavMeshPathStatus.PathComplete || path.status == NavMeshPathStatus.PathPartial)
+                && path.corners.Length >= 2;
+        }
+        if (!ok)
         {
             lastUsed = 0;
             foreach (var a in arrows) if (a != null) a.SetActive(false);
             return;
         }
+        PlaceArrows(new System.Collections.Generic.List<Vector3>(path.corners));
+    }
 
-        var corners = path.corners;
+    private static Vector3 SampleNav(Vector3 p)
+    {
+        return NavMesh.SamplePosition(p, out var hit, 2.5f, NavMesh.AllAreas) ? hit.position : p;
+    }
+
+    /// <summary>计算 cur→to 一段路径并追加拐点（与上一段共享端点去重）。两端已在 NavMesh 上。</summary>
+    private bool Segment(Vector3 cur, Vector3 to, System.Collections.Generic.List<Vector3> outCorners)
+    {
+        if (!NavMesh.CalculatePath(cur, SampleNav(to), NavMesh.AllAreas, path)
+            || (path.status != NavMeshPathStatus.PathComplete && path.status != NavMeshPathStatus.PathPartial)
+            || path.corners.Length < 2) return false;
+        for (int i = outCorners.Count > 0 ? 1 : 0; i < path.corners.Length; i++)
+            outCorners.Add(path.corners[i]);
+        return true;
+    }
+
+    private void PlaceArrows(System.Collections.Generic.List<Vector3> cornerList)
+    {
+        var corners = cornerList.ToArray();
         int used = 0;
         float acc = spacing * 0.5f;   // 第一枚箭头在玩家前方半个间距
         float traveled = 0f;          // 起点到当前段的沿路距离，决定流光相位

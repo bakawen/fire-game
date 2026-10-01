@@ -15,10 +15,13 @@ public class InteractableMarker : MonoBehaviour
     [SerializeField] private float bobAmplitude = 0.05f;
     [SerializeField] private float bobSpeed = 2.2f;
     [SerializeField] private float pulseSpeed = 3f;
+    [Tooltip("跟随目标（导演每局搬位的道具：报警按钮/湿毛巾——标记跟着走）；空=固定锚点")]
+    [SerializeField] private Transform followTarget;
 
     private Transform visual;
     private Transform player;
     private Vector3 anchor;
+    private Vector3 followOffset;
     private Vector3 iconBaseScale;
     private float seed;
 
@@ -26,6 +29,7 @@ public class InteractableMarker : MonoBehaviour
     {
         visual = transform.Find("Visual");
         anchor = transform.position;
+        if (followTarget != null) followOffset = anchor - followTarget.position;
         seed = Random.value * 10f;
         var icon = transform.Find("Visual/Icon");
         if (icon != null) iconBaseScale = icon.localScale;
@@ -47,6 +51,9 @@ public class InteractableMarker : MonoBehaviour
             if (p != null) player = p.transform;
         }
         if (player == null) return;
+
+        // 跟随目标（导演搬位的道具）：锚点实时跟随目标+初始偏移
+        if (followTarget != null) anchor = followTarget.position + followOffset;
 
         // 距离显隐（近处才显示，避免远处杂乱）
         float d = Vector3.Distance(player.position, anchor);

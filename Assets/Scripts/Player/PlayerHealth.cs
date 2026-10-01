@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>玩家生命：火焰近身伤害 + 浓烟分层伤害（蹲下/湿毛巾减免），沉浸式红晕反馈。</summary>
@@ -18,10 +19,12 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private GameHUD hud;
     [SerializeField] private ResultPanelController resultPanel;
 
+    /// <summary>死亡验尸文案提供者（办公楼活火场注入：死因归因+反事实建议）；空=默认逃生要点。</summary>
+    public Func<string> DeathSummaryProvider;
+
     public bool HasWetTowel { get; set; }
     public float Health { get; private set; }
-    public bool IsDead { get; private set; }
-    /// <summary>濒死状态（M5）：血量低于阈值时触发视野收窄+移动减速。</summary>
+    public bool IsDead { get; private set; }    /// <summary>濒死状态（M5）：血量低于阈值时触发视野收窄+移动减速。</summary>
     public bool IsCritical { get; private set; }
 
     private FirstPersonController controller;
@@ -99,7 +102,26 @@ public class PlayerHealth : MonoBehaviour
         if (resultPanel != null)
         {
             resultPanel.ShowLose(lastDamageSource,
-                "逃生要点：浓烟中压低身体前行，用湿毛巾捂住口鼻；\n火焰封锁通道时，用灭火器对准火焰根部开辟生路；\n火势会随时间蔓延——请尽早撤离。");
+                DeathSummaryProvider != null ? DeathSummaryProvider()
+                : "逃生要点：浓烟中压低身体前行，用湿毛巾捂住口鼻；\n火焰封锁通道时，用灭火器对准火焰根部开辟生路；\n火势会随时间蔓延——请尽早撤离。");
         }
+    }
+
+    /// <summary>外部伤害入口（背燃火球/坠物等事件）：立即扣血并刷新红晕。</summary>
+    public void ApplyDamage(float amount, string source)
+    {
+        if (IsDead || amount <= 0f) return;
+        Health = Mathf.Max(0f, Health - amount);
+        if (!string.IsNullOrEmpty(source)) lastDamageSource = source;
+        if (hud != null) hud.SetVignette(1f - Health / maxHealth);
+        if (Health <= 0f) Die();
+    }
+
+    /// <summary>死于结构坍塌（终局死线归零——独立死因与文案，不走烟/火伤害管线）。</summary>
+    public void DieByCollapse(string detail)
+    {
+        if (IsDead) return;
+        IsDead = true;
+        if (resultPanel != null) resultPanel.ShowLose("结构坍塌", detail);
     }
 }

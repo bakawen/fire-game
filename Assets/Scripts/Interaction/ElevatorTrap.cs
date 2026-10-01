@@ -17,7 +17,14 @@ public class ElevatorTrap : MonoBehaviour, IInteractable
     [Header("冷却")]
     [SerializeField] private float cooldownSeconds = 3f;
 
-    public string PromptText => CanInteract ? "按 E 乘坐电梯" : null;
+    [Header("断电（办公楼战术断电联动）")]
+    [SerializeField, TextArea(1, 3)] private string powerOutHint = "已断电——火场严禁乘电梯！沿绿色指示从主入口撤离";
+    private bool powerOut;
+
+    /// <summary>拉闸断电后调用：电梯按 E 改为断电提示。</summary>
+    public void SetPowerOut(bool on) => powerOut = on;
+
+    public string PromptText => CanInteract ? (powerOut ? "按 E 乘坐电梯（已断电）" : "按 E 乘坐电梯") : null;
     public bool CanInteract => Time.time - lastInteract > cooldownSeconds;
 
     /// <summary>玩家尝试乘电梯（教学提示用）。</summary>
@@ -40,6 +47,15 @@ public class ElevatorTrap : MonoBehaviour, IInteractable
     {
         if (!CanInteract) return;
         lastInteract = Time.time;
+
+        if (powerOut)
+        {
+            // 断电版：只播故障音 + 专属提示（不再走 LevelFlow 的电梯教学文案）
+            if (audioSrc != null && errorClip != null) audioSrc.PlayOneShot(errorClip, volume);
+            var tutorial = FindObjectsOfType<TutorialUI>();
+            if (tutorial != null && tutorial.Length > 0) tutorial[0].ShowHint(powerOutHint);
+            return;
+        }
 
         if (audioSrc != null)
         {

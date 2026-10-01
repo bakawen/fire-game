@@ -9,6 +9,10 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] private TMP_Text hintText;
     [SerializeField] private Image blackOverlay;
     [SerializeField] private float hintHoldSeconds = 7.5f;
+    [Tooltip("开场黑幕保持秒数（办公楼90秒节奏压到~1秒）")]
+    [SerializeField] private float overlayHoldSeconds = 3.2f;
+    [Tooltip("开场黑幕淡出秒数")]
+    [SerializeField] private float overlayFadeSeconds = 1.8f;
 
     [Header("关卡文案（每关配置）")]
     [SerializeField] private string wakeHint = "深夜 2:47，你被一阵刺鼻的烟味呛醒……";
@@ -16,6 +20,9 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] private string fireHint = "书桌上的插线板起火了！先按 E 拉下门边电闸断电，再按 E 取门后灭火器，对准火焰根部按住左键喷射";
     [SerializeField] private string extinguishedHint = "初期火已扑灭！但走廊浓烟弥漫——按 Ctrl 蹲下低姿前行，到东南角按 E 拿湿毛巾捂住口鼻";
     [SerializeField] private string blockHintText = "前方火势挡路！举起灭火器（按住左键）对准火焰根部，开辟逃生通道";
+
+    [Header("文字引导开关（图标化弹窗接管后关闭事件提示）")]
+    [SerializeField] private bool suppressEventHints = false;
 
     [Header("事件源（场景配置）")]
     [SerializeField] private FirePoint deskFire;
@@ -30,6 +37,14 @@ public class TutorialUI : MonoBehaviour
     private bool controlsShown;
     private bool fireHintShown;
     private bool blockHintShown;
+
+    private void Awake()
+    {
+        // 同局重试捕获：结算"重新开始"置位后，本关所有消费方（活火场起源/随机出生）共用此标记。
+        // 放 Awake 保证先于任何 Start 消费方（SpawnManager/graph 首 tick）。
+        RetryRun.Active = RetryRun.Requested;
+        RetryRun.Requested = false;
+    }
 
     private void Start()
     {
@@ -61,9 +76,9 @@ public class TutorialUI : MonoBehaviour
         timer += Time.deltaTime;
 
         // 开场黑幕淡出
-        if (overlayAlpha > 0f && timer > 3.2f)
+        if (overlayAlpha > 0f && timer > overlayHoldSeconds)
         {
-            overlayAlpha = Mathf.Max(0f, overlayAlpha - Time.deltaTime / 1.8f);
+            overlayAlpha = Mathf.Max(0f, overlayAlpha - Time.deltaTime / overlayFadeSeconds);
             if (blackOverlay != null)
             {
                 blackOverlay.color = new Color(0f, 0f, 0f, overlayAlpha);
@@ -109,11 +124,13 @@ public class TutorialUI : MonoBehaviour
 
     private void OnTowelPicked()
     {
+        if (suppressEventHints) return;
         ShowHint("湿毛巾已捂住口鼻，浓烟伤害大幅降低。按 E 开门，沿绿色疏散标志向楼梯间撤离！");
     }
 
     private void OnDoorOpened(InteractableDoor door)
     {
+        if (suppressEventHints) return;
         ShowHint("火势正在蔓延，不要停留、不要回头拿财物！沿疏散指示向楼梯间方向撤离");
     }
 

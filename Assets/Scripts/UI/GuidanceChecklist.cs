@@ -21,7 +21,10 @@ public class GuidanceChecklist : MonoBehaviour
         DoorOpen,
         BarrierFireOut,
         Proximity,
-        Win
+        Win,
+        Alarm,      // 手动报警按钮（办公楼/公寓）
+        Cabinet,    // 打碎消防柜取灭火器（办公楼）
+        DoorCheck   // 摸门判断火情（公寓）
     }
 
     [Serializable]
@@ -32,6 +35,8 @@ public class GuidanceChecklist : MonoBehaviour
         [TextArea(1, 2)] public string instruction;
         public Sprite icon;
         public Transform target;
+        [Tooltip("地面箭头的途经点链（办公楼安全路线引导）；空=最短路径")]
+        public Transform[] viaPoints;
         public float arrowHeight = 1.6f;
         public float radius = 3.5f;
         [NonSerialized] public bool done;
@@ -50,6 +55,9 @@ public class GuidanceChecklist : MonoBehaviour
     [SerializeField] private InteractableDoor roomDoor;
     [SerializeField] private FirePoint barrierFire;
     [SerializeField] private WinTrigger winTrigger;
+    [SerializeField] private AlarmButton alarmButton;        // 办公楼/公寓：手动报警
+    [SerializeField] private ExtinguisherCabinet cabinet;    // 办公楼：消防柜取灭火器
+    [SerializeField] private DoorCheck doorCheck;            // 公寓：摸门判断火情
 
     [Header("步骤列表（按顺序配置；乱序完成自动跳过）")]
     [SerializeField] private List<Step> steps = new List<Step>();
@@ -63,6 +71,7 @@ public class GuidanceChecklist : MonoBehaviour
     private ObjectivePopupUI popup;
     private ObjectiveGuideArrow arrow;
     private PathGuide pathGuide;
+    private Transform[] routeChain;          // 路线触发器注入（办公楼活火场：玩家选定路线后的箭头途经链）
     private int shownIndex = -2;           // 已弹过窗的当前步骤
     private float nextPopupDelay;          // 下一次弹窗前的等待（首步=开场延迟；之后=完成提示时长）
     private Coroutine popupRoutine;
@@ -93,6 +102,9 @@ public class GuidanceChecklist : MonoBehaviour
         if (roomDoor != null) roomDoor.OnOpened += OnDoorOpened;
         if (barrierFire != null) barrierFire.OnExtinguished += OnBarrierFireOut;
         if (winTrigger != null) winTrigger.OnWin += OnWin;
+        if (alarmButton != null) alarmButton.OnAlarmTriggered += OnAlarm;
+        if (cabinet != null) cabinet.OnTaken += OnCabinetTaken;
+        if (doorCheck != null) doorCheck.OnDoorChecked += OnDoorChecked;
     }
 
     private void OnDisable()
@@ -104,6 +116,9 @@ public class GuidanceChecklist : MonoBehaviour
         if (roomDoor != null) roomDoor.OnOpened -= OnDoorOpened;
         if (barrierFire != null) barrierFire.OnExtinguished -= OnBarrierFireOut;
         if (winTrigger != null) winTrigger.OnWin -= OnWin;
+        if (alarmButton != null) alarmButton.OnAlarmTriggered -= OnAlarm;
+        if (cabinet != null) cabinet.OnTaken -= OnCabinetTaken;
+        if (doorCheck != null) doorCheck.OnDoorChecked -= OnDoorChecked;
     }
 
     private void Update()
@@ -132,6 +147,13 @@ public class GuidanceChecklist : MonoBehaviour
         Refresh();
     }
 
+    /// <summary>路线跟随（办公楼活火场）：RouteTrigger 在玩家选定路线后注入该路线的地面箭头链。</summary>
+    public void SetRouteChain(Transform[] chain)
+    {
+        routeChain = chain;
+        Refresh();
+    }
+
     private int FirstUndone()
     {
         for (int i = 0; i < steps.Count; i++)
@@ -156,7 +178,7 @@ public class GuidanceChecklist : MonoBehaviour
         if (pathGuide != null)
         {
             if (index >= 0 && steps[index].target != null)
-                pathGuide.SetTarget(steps[index].target);
+                pathGuide.SetTarget(steps[index].target, EffectiveVia(steps[index]));
             else
                 pathGuide.Hide();
         }
@@ -175,6 +197,17 @@ public class GuidanceChecklist : MonoBehaviour
         popup.ShowStep(s.icon, $"第 {index + 1} 步 · {s.label}", s.instruction);
     }
 
+    /// <summary>步骤自带途经点优先；全空时回退路线触发器注入的路线链（活火场版）。</summary>
+    private Transform[] EffectiveVia(Step s)
+    {
+        if (s.viaPoints != null)
+        {
+            for (int i = 0; i < s.viaPoints.Length; i++)
+                if (s.viaPoints[i] != null) return s.viaPoints;
+        }
+        return routeChain;
+    }
+
     private void OnPowerCut() => Complete(StepSource.PowerCut);
     private void OnExtinguisherTaken() => Complete(StepSource.Extinguisher);
     private void OnDeskFireOut(FirePoint fp) => Complete(StepSource.InitialFireOut);
@@ -182,4 +215,7 @@ public class GuidanceChecklist : MonoBehaviour
     private void OnDoorOpened(InteractableDoor door) => Complete(StepSource.DoorOpen);
     private void OnBarrierFireOut(FirePoint fp) => Complete(StepSource.BarrierFireOut);
     private void OnWin() => Complete(StepSource.Win);
+    private void OnAlarm() => Complete(StepSource.Alarm);
+    private void OnCabinetTaken() => Complete(StepSource.Cabinet);
+    private void OnDoorChecked() => Complete(StepSource.DoorCheck);
 }

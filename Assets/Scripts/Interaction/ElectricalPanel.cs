@@ -9,8 +9,14 @@ public class ElectricalPanel : MonoBehaviour, IInteractable
     [SerializeField] private Transform lever;
     [SerializeField] private float decayPerSecond = 0.05f;
 
-    public string PromptText => isOff ? null : "按 E 拉闸断电";
-    public bool CanInteract => !isOff;
+    public string PromptText => (isOff || Gated) ? null : "按 E 拉闸断电";
+    public bool CanInteract => !isOff && !Gated;
+
+    /// <summary>外部交互闸（规则牌"停电检修"等：返回 false=本局不可拉闸，提示不显示）。</summary>
+    public Func<bool> InteractGate { get; set; }
+
+    /// <summary>当前是否被外部封禁（导演"配电检修"牌）。</summary>
+    public bool Gated => InteractGate != null && !InteractGate();
 
     /// <summary>断电时触发。</summary>
     public event Action OnPowerCut;

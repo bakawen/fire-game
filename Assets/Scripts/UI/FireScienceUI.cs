@@ -3,9 +3,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>火灾科普界面：左侧分类导航 + 右侧图文卡片流 + 自测问答 + 序列帧演示动画。</summary>
+/// <summary>火灾科普界面：左侧分类导航 + 右侧图文卡片流 + 序列帧演示动画（自测问答已独立为 QuizModeUI / 06_Quiz 场景）。</summary>
 public class FireScienceUI : MonoBehaviour
 {
+    /// <summary>跳转定位：答题总结页点"查看科普"前设置目标分类索引，本页 Start 消费后复位（-1=默认第一分类）。</summary>
+    public static int pendingCategoryIndex = -1;
+
     [Header("内容")]
     [SerializeField] private FireScienceContent content;
 
@@ -24,17 +27,6 @@ public class FireScienceUI : MonoBehaviour
     [Header("滚轮速度（默认值 1 对长卡片流过慢）")]
     [SerializeField] private float cardScrollSensitivity = 8f;
 
-    [Header("问答视图")]
-    [SerializeField] private GameObject quizView;
-    [SerializeField] private Image quizImage;
-    [SerializeField] private TMP_Text quizQuestionText;
-    [SerializeField] private Button quizOptionA;
-    [SerializeField] private Button quizOptionB;
-    [SerializeField] private Button quizOptionC;
-    [SerializeField] private TMP_Text quizFeedbackText;
-    [SerializeField] private Button quizNextButton;
-    [SerializeField] private TMP_Text quizProgressText;
-
     [Header("演示动画视图（序列帧 uvRect 步进）")]
     [SerializeField] private GameObject animView;
     [SerializeField] private RawImage animRawImage;
@@ -48,8 +40,6 @@ public class FireScienceUI : MonoBehaviour
     // 配色与主菜单/结算面板一致
     private static readonly Color SelectedColor = new Color(0.91f, 0.38f, 0.18f, 1f);
     private static readonly Color NormalColor = new Color(0.16f, 0.17f, 0.22f, 1f);
-    private static readonly Color CorrectColor = new Color(0.35f, 0.9f, 0.45f, 1f);
-    private static readonly Color WrongColor = new Color(0.95f, 0.35f, 0.25f, 1f);
 
     private const int AnimFrameCount = 16;      // 4×4 序列图
     private const float Cell = 0.25f;           // 单帧 uv 占比
@@ -57,8 +47,7 @@ public class FireScienceUI : MonoBehaviour
 
     private readonly List<Button> sidebarButtons = new List<Button>();
     private readonly List<GameObject> cardInstances = new List<GameObject>();
-    private int selected = -1;      // >=0=分类索引；-1=自测问答；-2=演示动画
-    private int quizIndex;
+    private int selected = -1;      // >=0=分类索引；-2=演示动画
     private bool animPaused;
     private float animTimer;
     private int animFrame = -1;
@@ -67,10 +56,6 @@ public class FireScienceUI : MonoBehaviour
     {
         if (cardScroll != null) cardScroll.scrollSensitivity = cardScrollSensitivity;
         backButton.onClick.AddListener(() => SceneLoader.Load(SceneNames.MainMenu));
-        quizOptionA.onClick.AddListener(() => AnswerQuiz(0));
-        quizOptionB.onClick.AddListener(() => AnswerQuiz(1));
-        quizOptionC.onClick.AddListener(() => AnswerQuiz(2));
-        quizNextButton.onClick.AddListener(NextQuiz);
         animToggleButton.onClick.AddListener(ToggleAnim);
         BuildSidebar();
         SelectCategory(0);
@@ -81,6 +66,13 @@ public class FireScienceUI : MonoBehaviour
         // 菜单类场景必须释放鼠标（可能从锁定状态的场景切换而来）
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        // 错题"重新科普"跳转：直接定位到对应章节
+        if (pendingCategoryIndex >= 0 && pendingCategoryIndex < content.categories.Count)
+        {
+            SelectCategory(pendingCategoryIndex);
+            pendingCategoryIndex = -1;
+        }
     }
 
     private void BuildSidebar()
@@ -95,13 +87,6 @@ public class FireScienceUI : MonoBehaviour
             btn.onClick.AddListener(() => SelectCategory(index));
             sidebarButtons.Add(btn);
         }
-        Button quizBtn = Instantiate(categoryTemplate, sidebar, false);
-        quizBtn.name = "BtnQuiz";
-        quizBtn.gameObject.SetActive(true);
-        quizBtn.GetComponentInChildren<TMP_Text>().text = "自测问答";
-        quizBtn.onClick.AddListener(EnterQuiz);
-        sidebarButtons.Add(quizBtn);
-
         Button animBtn = Instantiate(categoryTemplate, sidebar, false);
         animBtn.name = "BtnAnim";
         animBtn.gameObject.SetActive(true);
@@ -114,7 +99,6 @@ public class FireScienceUI : MonoBehaviour
     {
         selected = index;
         categoryView.SetActive(true);
-        quizView.SetActive(false);
         animView.SetActive(false);
 
         var cat = content.categories[index];
@@ -148,67 +132,10 @@ public class FireScienceUI : MonoBehaviour
         RefreshSidebar();
     }
 
-    private void EnterQuiz()
-    {
-        selected = -1;
-        categoryView.SetActive(false);
-        quizView.SetActive(true);
-        animView.SetActive(false);
-        quizIndex = 0;
-        ShowQuiz();
-        RefreshSidebar();
-    }
-
-    private void ShowQuiz()
-    {
-        var item = content.quizItems[quizIndex];
-        bool hasIll = item.illustration != null;
-        quizImage.gameObject.SetActive(hasIll);
-        if (hasIll) quizImage.sprite = item.illustration;
-
-        quizQuestionText.text = item.question;
-        quizOptionA.GetComponentInChildren<TMP_Text>().text = item.optionA;
-        quizOptionB.GetComponentInChildren<TMP_Text>().text = item.optionB;
-        quizOptionC.GetComponentInChildren<TMP_Text>().text = item.optionC;
-        quizOptionA.interactable = true;
-        quizOptionB.interactable = true;
-        quizOptionC.interactable = true;
-        quizFeedbackText.text = "";
-        quizProgressText.text = $"第 {quizIndex + 1} / {content.quizItems.Count} 题";
-        quizNextButton.gameObject.SetActive(false);
-    }
-
-    private void AnswerQuiz(int index)
-    {
-        if (quizNextButton.gameObject.activeSelf) return;   // 已答过本题
-        var item = content.quizItems[quizIndex];
-        bool correct = index == item.correctIndex;
-        quizFeedbackText.color = correct ? CorrectColor : WrongColor;
-        quizFeedbackText.text = correct ? "回答正确！" + item.explanation : "回答错误。" + item.explanation;
-        quizOptionA.interactable = false;
-        quizOptionB.interactable = false;
-        quizOptionC.interactable = false;
-        bool last = quizIndex >= content.quizItems.Count - 1;
-        quizNextButton.GetComponentInChildren<TMP_Text>().text = last ? "重新开始" : "下一题";
-        quizNextButton.gameObject.SetActive(true);
-    }
-
-    private void NextQuiz()
-    {
-        if (quizIndex >= content.quizItems.Count - 1)
-        {
-            EnterQuiz();      // 末题→重新开始
-            return;
-        }
-        quizIndex++;
-        ShowQuiz();
-    }
-
     private void SelectAnim()
     {
         selected = -2;
         categoryView.SetActive(false);
-        quizView.SetActive(false);
         animView.SetActive(true);
         animTimer = 0f;
         animFrame = -1;
@@ -250,12 +177,10 @@ public class FireScienceUI : MonoBehaviour
 
     private void RefreshSidebar()
     {
-        int quizIndexInSidebar = content.categories.Count;   // 问答=倒数第二项，演示动画=最后一项
+        int animIndexInSidebar = content.categories.Count;   // 演示动画=最后一项
         for (int i = 0; i < sidebarButtons.Count; i++)
         {
-            bool active = i == selected
-                || (i == quizIndexInSidebar && selected == -1)
-                || (i == quizIndexInSidebar + 1 && selected == -2);
+            bool active = i == selected || (i == animIndexInSidebar && selected == -2);
             sidebarButtons[i].GetComponent<Image>().color = active ? SelectedColor : NormalColor;
         }
     }

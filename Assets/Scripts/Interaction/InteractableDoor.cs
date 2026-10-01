@@ -16,13 +16,29 @@ public class InteractableDoor : MonoBehaviour, IInteractable
     /// <summary>开启拦截器（QuizDoor 等设置：拦截时按E不直接开门，转由拦截器处理）。</summary>
     public Func<PlayerInteraction, bool> OpenInterceptor { get; set; }
 
-    public bool CanInteract => true;
+    /// <summary>外部交互闸（呼救事件等接管期间返回 false：本门不可直接交互）。空=正常可交互。</summary>
+    public Func<bool> InteractGate { get; set; }
+
+    public bool CanInteract => InteractGate == null || InteractGate();
 
     /// <summary>门当前是否开启（QuizDoor 等外部系统查询）。</summary>
     public bool IsOpen => isOpen;
 
+    /// <summary>外部强制开合状态（炸门等演出用）：置位+广播事件，不播动画。</summary>
+    public void ForceSetOpen(bool open)
+    {
+        if (isOpen == open) return;
+        isOpen = open;
+        moving = false;
+        if (open) OnOpened?.Invoke(this);
+        else OnClosed?.Invoke(this);
+    }
+
     /// <summary>门被打开时触发（教学提示用）。</summary>
     public event Action<InteractableDoor> OnOpened;
+
+    /// <summary>门被关闭时触发（办公楼"防火门随手关挡烟"决策用）。</summary>
+    public event Action<InteractableDoor> OnClosed;
 
     private bool isOpen;
     private bool moving;
@@ -52,6 +68,7 @@ public class InteractableDoor : MonoBehaviour, IInteractable
         isOpen = !isOpen;
         moving = true;
         if (isOpen) OnOpened?.Invoke(this);
+        else OnClosed?.Invoke(this);   // 由开到关（玩家随手关门/再关门）
     }
 
     private void Update()

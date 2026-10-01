@@ -35,6 +35,24 @@ public class FireSpreadManager : MonoBehaviour
                 e.igniteAtSeconds /= difficulty;
     }
 
+    /// <summary>战术断电：剩余未点燃的火点推迟（factor>1 = 更晚点燃，如 1.25=晚 25%）。</summary>
+    public void SlowRemaining(float factor)
+    {
+        if (factor <= 1f) return;
+        foreach (var e in events)
+            if (e.firePoint != null && !e.firePoint.IsBurning)
+                e.igniteAtSeconds *= factor;
+    }
+
+    // 烟区系数（办公楼"防火门随手关挡烟"：关门后该烟区浓度按系数衰减）
+    private readonly Dictionary<SmokeVolume, float> volumeFactors = new Dictionary<SmokeVolume, float>();
+
+    /// <summary>设置某烟区的浓度系数（1=正常；防火门关闭后设为 0.15 之类挡烟）。</summary>
+    public void SetVolumeFactor(SmokeVolume volume, float factor)
+    {
+        if (volume != null) volumeFactors[volume] = Mathf.Clamp01(factor);
+    }
+
     /// <summary>查询火点的计划点燃时刻（不在时间表返回 -1）。</summary>
     public float GetIgniteTime(FirePoint fp)
     {
@@ -79,7 +97,8 @@ public class FireSpreadManager : MonoBehaviour
         GlobalSmokeLevel = Mathf.Clamp01(total / 4f);
 
         foreach (var v in smokeVolumes)
-            if (v != null) v.SetLevel(GlobalSmokeLevel);
+            if (v != null)
+                v.SetLevel(GlobalSmokeLevel * (volumeFactors.TryGetValue(v, out float f) ? f : 1f));
 
         RenderSettings.fogDensity = Mathf.Lerp(
             RenderSettings.fogDensity,

@@ -14,7 +14,11 @@ public class ResultPanelController : MonoBehaviour
 
     private void Awake()
     {
-        retryButton.onClick.AddListener(() => SceneLoader.Load(SceneManager.GetActiveScene().name));
+        retryButton.onClick.AddListener(() =>
+        {
+            RetryRun.Requested = true;   // 同局重试：保持同一随机起火点与出生点
+            SceneLoader.Load(SceneManager.GetActiveScene().name);
+        });
         exitButton.onClick.AddListener(() => SceneLoader.Load(SceneNames.LevelSelect));
         Hide();
     }

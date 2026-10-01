@@ -88,6 +88,9 @@ public class FirePoint : MonoBehaviour
         ApplyVisuals();
     }
 
+    /// <summary>活火场用：动态改写可灭标记（起源火只在初期窗口内可灭）。</summary>
+    public void SetExtinguishable(bool value) => extinguishable = value;
+
     /// <summary>外部因素衰减（如断电），不受可灭标记限制。</summary>
     public void StartExternalDecay(float decayPerSecond) => externalDecay = decayPerSecond;
 
