@@ -63088,10 +63088,10 @@ MonoBehaviour:
     prompt: "\u63A5\u7EBF\u5458\uFF1A\u201C\u597D\u7684\uFF0C\u5177\u4F53\u4F4D\u7F6E\u548C\u73B0\u573A\u60C5\u51B5\u8BF7\u8865\u5145\u3002\u201D\n\u8FD8\u5E94\u8BE5\u8BF4\u4EC0\u4E48\uFF1F"
     optionA: "\u201C\u5F88\u4E25\u91CD\uFF01\u6574\u680B\u697C\u90FD\u8981\u70E7\u8D77\u6765\u4E86\uFF01\u201D"
     optionB: "\u201C\u6211\u5148\u6302\u4E86\uFF0C\u7B49\u4F60\u4EEC\u6765\u518D\u8BF4\u3002\u201D"
-    optionC: "\u201C3\u697C\u8D77\u706B\uFF0C\u5BB6\u91CC2\u4EBA\u88AB\u56F0\u9633\u53F0\uFF0C\u697C\u4E0B\u697C\u9053\u5168\u662F\u70DF\u3002\u201D"
+    optionC: "3\u697C\u90BB\u5C45\u5BB6\u8D77\u706B\uFF0C\u6211\u4F4F4\u697C\uFF0C\u5C4B\u5185\u548C\u697C\u9053\u90FD\u662F\u6D53\u70DF\uFF0C\u6B63\u7528\u6E7F\u6BDB\u5DFE\u6342\u7740\u53E3\u9F3B\u5F80\u697C\u4E0B\u64A4\u3002"
     optionD: "\u201C\u6211\u5728X\u680BX\u5355\u5143\uFF0C\u4F60\u4EEC\u5230\u4E86\u7ED9\u6211\u6253\u7535\u8BDD\u3002\u201D"
     correctIndex: 2
-    correction: 
+    correction: "\u5E94\u8BF4\u6E05\uFF1A\u54EA\u91CC\u8D77\u706B\uFF083\u697C\u90BB\u5C45\u5BB6\uFF09\u3001\u4F60\u6240\u5728\u697C\u5C42\u4E0E\u64A4\u79BB\u72B6\u6001\u3001\u697C\u9053\u73B0\u72B6\u2014\u2014119\u624D\u80FD\u6D3E\u51FA\u6B63\u786E\u6551\u63F4\u3002"
   doneHint: "\u62A5\u8B66\u6210\u529F\uFF1A\u8BF4\u6E05\u4E86\u5730\u5740\u3001\u697C\u5C42\u3001\u706B\u52BF\u548C\u88AB\u56F0\u4EBA\u6570\u3002\u6D88\u9632\u961F\u5DF2\u5728\u8DEF\u4E0A\uFF01"
 --- !u!4 &304918538 stripped
 Transform:
@@ -96223,6 +96223,55 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5769129917905624438, guid: 3106a6f3c2fc2a547b55f8f47ff2e09c, type: 3}
   m_PrefabInstance: {fileID: 1767891477}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &450013061
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 450013063}
+  - component: {fileID: 450013062}
+  m_Layer: 0
+  m_Name: Apartment119Hooks
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &450013062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 450013061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9eb0d3dbfbb0fd746b878691a293430c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  phone119: {fileID: 0}
+  truckSiren: {fileID: 0}
+  fireTruck: {fileID: 0}
+  tutorial: {fileID: 0}
+  dispatchHint: "119\u5DF2\u63A5\u8B66\uFF01\u6D88\u9632\u961F\u6B63\u5728\u8D76\u5F80\u73B0\u573A\u2014\u2014\u6E7F\u6BDB\u5DFE\u6342\u4F4F\u53E3\u9F3B\uFF0C\u6293\u7D27\u65F6\u95F4\u6CBF\u758F\u6563\u65B9\u5411\u64A4\u79BB\uFF01"
+--- !u!4 &450013063
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 450013061}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &450094525
 GameObject:
   m_ObjectHideFlags: 0
@@ -218933,7 +218982,7 @@ Transform:
   m_GameObject: {fileID: 1096981929}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.8, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -230279,34 +230328,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   events:
   - firePoint: {fileID: 1095698923}
-    igniteAtSeconds: 15
+    igniteAtSeconds: 35
     growthPerSecond: 0.08
   - firePoint: {fileID: 1737531290}
-    igniteAtSeconds: 25
+    igniteAtSeconds: 40
     growthPerSecond: 0.08
   - firePoint: {fileID: 335014753}
-    igniteAtSeconds: 35
+    igniteAtSeconds: 50
     growthPerSecond: 0.07
   - firePoint: {fileID: 460543488}
-    igniteAtSeconds: 45
+    igniteAtSeconds: 60
     growthPerSecond: 0.07
   - firePoint: {fileID: 1827452341}
-    igniteAtSeconds: 45
+    igniteAtSeconds: 60
     growthPerSecond: 0.07
   - firePoint: {fileID: 1537571129}
-    igniteAtSeconds: 55
+    igniteAtSeconds: 70
     growthPerSecond: 0.012
   - firePoint: {fileID: 1410700445}
-    igniteAtSeconds: 65
+    igniteAtSeconds: 80
     growthPerSecond: 0.08
   - firePoint: {fileID: 1761442322}
-    igniteAtSeconds: 65
+    igniteAtSeconds: 80
     growthPerSecond: 0.08
   - firePoint: {fileID: 265704926}
-    igniteAtSeconds: 75
+    igniteAtSeconds: 90
     growthPerSecond: 0.08
   - firePoint: {fileID: 895640435}
-    igniteAtSeconds: 75
+    igniteAtSeconds: 90
     growthPerSecond: 0.08
   smokeVolumes:
   - {fileID: 2062011279}
@@ -323517,7 +323566,7 @@ MonoBehaviour:
     hint: 
   - source: 1
     objective: "\u2461 \u6309\u4E0B\u8D70\u5ECA\u7684\u624B\u52A8\u706B\u707E\u62A5\u8B66\u6309\u94AE"
-    hint: "\u8B66\u62A5\u5DF2\u89E6\u53D1\uFF01\u706B\u707E\u65F6\u7535\u6C14\u9690\u60A3\u5927\u2014\u2014\u56DE\u53A8\u623F\u62C9\u4E0B\u914D\u7535\u7BB1\u7535\u95F8\u65AD\u7535"
+    hint: "\u8B66\u62A5\u5DF2\u89E6\u53D1\uFF01\u7535\u6C14\u706B\u52BF\u8513\u5EF6\u6781\u5FEB\u2014\u2014\u5148\u53BB\u5BB6\u4E2D\u7684\u914D\u7535\u7BB1\u62C9\u95F8\u65AD\u7535\u3002\u4E5F\u53EF\u7528\u5367\u5BA4\u624B\u673A\u62E8119\u8BF4\u6E05\u73B0\u573A\u3002"
   - source: 2
     objective: "\u2462 \u62C9\u4E0B\u5BB6\u4E2D\u914D\u7535\u7BB1\u7535\u95F8\u65AD\u7535"
     hint: "\u5DF2\u65AD\u7535\uFF01\u706B\u5728\u697C\u4E0B\u2014\u2014\u4E0D\u8981\u8BD5\u56FE\u4E0B\u53BB\u6551\u706B\uFF0C\u5148\u5230\u536B\u751F\u95F4\u62FF\u6E7F\u6BDB\u5DFE\u6342\u4F4F\u53E3\u9F3B"
@@ -323526,13 +323575,13 @@ MonoBehaviour:
     hint: "\u6E7F\u6BDB\u5DFE\u5DF2\u6342\u4F4F\u53E3\u9F3B\uFF0C\u6D53\u70DF\u4F24\u5BB3\u5927\u5E45\u964D\u4F4E\u3002\u5F00\u5367\u5BA4\u95E8\uFF0C\u4F4E\u59FF\u7A7F\u8FC7\u5BB6\u4E2D\u6D53\u70DF"
   - source: 0
     objective: "\u2464 \u4F4E\u59FF\u7A7F\u51FA\u516C\u5BD3\uFF0C\u8FDB\u5165\u8D70\u5ECA\u5411\u697C\u68AF\u95F4\u64A4\u79BB"
-    hint: 
+    hint: "\u51FA\u95E8\u540E\u968F\u624B\u5173\u4E0A\u623F\u95E8\u2014\u2014\u4E00\u6247\u5173\u7D27\u7684\u623F\u95E8\u80FD\u628A\u5927\u90E8\u5206\u6D53\u70DF\u6321\u5728\u8EAB\u540E\uFF0C\u4E3A\u4F60\u548C\u90BB\u5C45\u4E89\u53D6\u5B9D\u8D35\u7684\u64A4\u79BB\u65F6\u95F4\u3002"
   - source: 0
     objective: "\u2465 \u6CBF\u697C\u68AF\u95F4\u5411\u4E0B\u2014\u2014\u7A7F\u8FC73\u5C42\u706B\u533A\uFF08\u6E7F\u6BDB\u5DFE+\u4F4E\u59FF+\u4E0D\u8981\u505C\u7559\uFF09"
-    hint: 
+    hint: "\u697C\u68AF\u95F4\u70DF\u6BD4\u8D70\u5ECA\u66F4\u6D53\u2014\u2014\u5168\u7A0B\u538B\u4F4E\u8EAB\u4F53+\u6E7F\u6BDB\u5DFE\u6342\u4F4F\u53E3\u9F3B\uFF0C\u5FEB\u901F\u901A\u8FC7\u4E0D\u505C\u7559\u3001\u4E0D\u6298\u8FD4\u3001\u4E0D\u4E0A\u697C\u9876\u3002"
   - source: 0
     objective: "\u2466 \u62B5\u8FBE\u4E00\u5C42\u5927\u5385\uFF0C\u4ECE\u4E3B\u51FA\u53E3\u64A4\u79BB\uFF08\u7EFF\u8272\u6807\u8BB0\uFF09"
-    hint: 
+    hint: "\u62B5\u8FBE\u4E00\u5C42\u540E\u7ACB\u523B\u8FDC\u79BB\u7740\u706B\u5EFA\u7B51\u5230\u5F00\u9614\u5730\u2014\u2014\u95E8\u53E3\u73BB\u7483\u7206\u88C2\u3001\u6D53\u70DF\u548C\u5760\u843D\u7269\u540C\u6837\u81F4\u547D\uFF0C\u522B\u5728\u51FA\u53E3\u9017\u7559\u3002"
   crawlHint: "\u6D53\u70DF\u5DF2\u6F2B\u8FC7\u5934\u9876\uFF01\u7ACB\u5373\u6309\u4F4F
     Ctrl \u8E72\u4E0B\uFF0C\u4F4E\u59FF\u8D34\u5730\u901A\u8FC7\u2014\u2014\u70DF\u6C14\u5728\u4E0A\uFF0C\u7A7A\u6C14\u5728\u4E0B"
   elevatorHint: "\u505C\u7535\u88AB\u56F0\u5728\u7535\u68AF\u91CC\u4E86\uFF01\u706B\u573A\u4E25\u7981\u4E58\u7535\u68AF\u2014\u2014\u95E8\u5F00\u540E\u6CBF\u7EFF\u8272\u6307\u793A\u4ECE\u524D\u5385\u4E3B\u5165\u53E3\u64A4\u79BB"
@@ -452060,3 +452109,4 @@ SceneRoots:
   - {fileID: 1634085116}
   - {fileID: 924729689}
   - {fileID: 191488094}
+  - {fileID: 450013063}

@@ -45,8 +45,10 @@ public class Phone119 : MonoBehaviour, IInteractable
         prompt = "接线员：“好的，具体位置和现场情况请补充。”\n还应该说什么？",
         optionA = "“很严重！整栋楼都要烧起来了！”",
         optionB = "“我先挂了，等你们来再说。”",
-        optionC = "“3楼起火，家里2人被困阳台，楼下楼道全是烟。”",
-        optionD = "“我在X栋X单元，你们到了给我打电话。”"
+        optionC = "“3楼邻居家起火，我住4楼，屋内和楼道都是浓烟，正用湿毛巾捂着口鼻往楼下撤。”",
+        optionD = "“我在X栋X单元，你们到了给我打电话。”",
+        correctIndex = 2,
+        correction = "应说清：哪里起火（3楼邻居家）、你所在楼层与撤离状态、楼道现状——119才能派出正确救援。"
     };
 
     [Header("完成后提示")]
