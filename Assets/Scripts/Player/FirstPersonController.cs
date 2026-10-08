@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// 第一人称玩家控制器：WASD移动、Shift疾跑、鼠标视角、Ctrl/C蹲下、重力、
-/// 头部晃动（Head Bob）、FOV速度/濒死反馈、准星渲染。
+/// 头部晃动（Head Bob）、FOV速度/濒死反馈、准星渲染、脚步声与濒死心跳。
 /// </summary>
 [RequireComponent(typeof(CharacterController))]
 public class FirstPersonController : MonoBehaviour
@@ -36,6 +36,12 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float bobAmplitude = 0.028f;
     [SerializeField] private float bobFrequency = 8.5f;
 
+    [Header("音效")]
+    [SerializeField] private AudioClip footstepClip;      // 单步脚步声（随 bob 半周期触发）
+    [SerializeField, Range(0f, 1f)] private float footstepVolume = 0.4f;
+    [SerializeField] private AudioClip heartbeatClip;     // 濒死心跳（循环播放）
+    [SerializeField, Range(0f, 1f)] private float heartbeatVolume = 0.5f;
+
     public bool IsCrouching { get; private set; }
     public bool IsSprinting { get; private set; }
     public bool IsGrounded => controller != null && controller.isGrounded;
@@ -47,6 +53,10 @@ public class FirstPersonController : MonoBehaviour
     private float verticalVelocity;
     private float currentCameraY;
     private float bobTimer;
+    private AudioSource stepSource;
+    private AudioSource heartSource;
+    private int lastStepIndex;
+    private bool heartPlaying;
 
     private void Awake()
     {
@@ -60,6 +70,16 @@ public class FirstPersonController : MonoBehaviour
         }
         if (cameraRoot != null) cam = cameraRoot.GetComponent<Camera>();
         currentCameraY = standCameraY;
+
+        stepSource = gameObject.AddComponent<AudioSource>();
+        stepSource.playOnAwake = false;
+        stepSource.spatialBlend = 0f;
+        heartSource = gameObject.AddComponent<AudioSource>();
+        heartSource.playOnAwake = false;
+        heartSource.loop = true;
+        heartSource.spatialBlend = 0f;
+        heartSource.clip = heartbeatClip;
+        heartSource.volume = heartbeatVolume;
     }
 
     private void Start()
@@ -70,6 +90,7 @@ public class FirstPersonController : MonoBehaviour
     private void Update()
     {
         HandleCursor();
+        HandleHeartbeat();   // 必须在 timeScale 暂停 early-return 之前：结算/暂停时停跳
         if (Time.timeScale <= 0.01f) return;
         HandleCrouch();
         HandleMovement();
@@ -121,23 +142,15 @@ public class FirstPersonController : MonoBehaviour
         if (velocity.sqrMagnitude > 0.01f)
             controller.Move(velocity * Time.deltaTime);
 
-        // 蹲/站高度过渡
-        float targetHeight = IsCrouching ? crouchHeight : standHeight;
-        if (Mathf.Abs(controller.height - targetHeight) > 0.005f)
-        {
-            float h2 = Mathf.MoveTowards(controller.height, targetHeight, crouchLerpSpeed * Time.deltaTime);
-            controller.height = h2;
-            controller.center = new Vector3(0f, h2 * 0.5f, 0f);
-        }
-
-        // 相机高度过渡 + 头部晃动
+        // 相机高度过渡 + 头部晃动（蹲/站胶囊高度过渡由 HandleCrouch 统一处理）
         float targetCamY = IsCrouching ? crouchCameraY : standCameraY;
         if (cameraRoot != null)
         {
             currentCameraY = Mathf.MoveTowards(currentCameraY, targetCamY, crouchLerpSpeed * Time.deltaTime);
 
             float bobOffset = 0f;
-            if (controller.isGrounded && input.sqrMagnitude > 0.1f)
+            bool movingGrounded = controller.isGrounded && input.sqrMagnitude > 0.1f;
+            if (movingGrounded)
             {
                 float speedRatio = IsCrouching ? 0.5f : IsSprinting ? 1.4f : 1f;
                 bobTimer += Time.deltaTime * bobFrequency * speedRatio;
@@ -152,7 +165,47 @@ public class FirstPersonController : MonoBehaviour
 
             var lp = cameraRoot.localPosition;
             cameraRoot.localPosition = new Vector3(lp.x, currentCameraY + bobOffset, lp.z);
+
+            HandleFootsteps(movingGrounded);
         }
+    }
+
+    /// <summary>脚步声：bob 每整周期（2π=左右两步）触发一次，音效内含两步与视觉双步同步；静止时同步索引防恢复行走时漏步/爆步。</summary>
+    private void HandleFootsteps(bool movingGrounded)
+    {
+        int stepIndex = Mathf.FloorToInt(bobTimer / (Mathf.PI * 2f));
+        if (!movingGrounded)
+        {
+            lastStepIndex = stepIndex;
+            return;
+        }
+        if (stepIndex > lastStepIndex)
+        {
+            PlayFootstep();
+            lastStepIndex = stepIndex;
+        }
+    }
+
+    /// <summary>播放一次脚步（HandleFootsteps 与运行时验证共用）。</summary>
+    public void PlayFootstep()
+    {
+        if (stepSource == null || footstepClip == null) return;
+        stepSource.pitch = 0.92f + UnityEngine.Random.value * 0.16f;
+        stepSource.PlayOneShot(footstepClip, footstepVolume * (0.9f + UnityEngine.Random.value * 0.2f));
+    }
+
+    /// <summary>濒死心跳：PlayerHealth 把 criticalSpeedFactor 压到 1 以下时循环；恢复或结算/暂停（timeScale=0）时停。</summary>
+    private void HandleHeartbeat()
+    {
+        if (heartSource == null || heartbeatClip == null) return;
+        if (Time.timeScale <= 0.01f)
+        {
+            if (heartPlaying) { heartPlaying = false; heartSource.Stop(); }
+            return;
+        }
+        bool critical = criticalSpeedFactor < 1f;
+        if (critical && !heartPlaying) { heartPlaying = true; heartSource.Play(); }
+        else if (!critical && heartPlaying) { heartPlaying = false; heartSource.Stop(); }
     }
 
     private void HandleFov()
