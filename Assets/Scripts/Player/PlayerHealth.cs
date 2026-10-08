@@ -10,10 +10,8 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float crouchFactor = 0.35f;
     [SerializeField, Range(0f, 1f)] private float towelFactor = 0.4f;
 
-    [Header("濒死状态（M5：血量低于阈值视野收窄+移动减速）")]
+    [Header("濒死状态（M5：血量低于阈值视野收窄+移动减速，FOV由FirstPersonController控制）")]
     [SerializeField, Range(0f, 1f)] private float criticalThreshold = 0.30f;
-    [SerializeField] private float criticalFov = 50f;
-    [SerializeField] private float normalFov = 70f;
 
     [Header("引用")]
     [SerializeField] private GameHUD hud;
@@ -86,12 +84,7 @@ public class PlayerHealth : MonoBehaviour
         IsCritical = Health < maxHealth * criticalThreshold && !IsDead;
         if (controller != null)
             controller.criticalSpeedFactor = IsCritical ? 0.6f : 1f;
-        var cam = Camera.main;
-        if (cam != null)
-        {
-            float targetFov = IsCritical ? criticalFov : normalFov;
-            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFov, 2f * Time.deltaTime);
-        }
+        // FOV 控制已移交 FirstPersonController.HandleFov（走/疾跑/濒死三档）
 
         if (Health <= 0f) Die();
     }

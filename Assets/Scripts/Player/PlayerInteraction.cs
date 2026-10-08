@@ -30,7 +30,11 @@ public class PlayerInteraction : MonoBehaviour
 
         FindTarget();
         if (Input.GetKeyDown(KeyCode.E) && target != null && target.CanInteract)
+        {
             target.Interact(this);
+            var sway = GetComponent<HandSway>();
+            if (sway != null) sway.TriggerReach();
+        }
 
         HeldItem?.TickHeld();
     }

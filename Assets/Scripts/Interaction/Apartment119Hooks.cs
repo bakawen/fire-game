@@ -1,21 +1,24 @@
 using UnityEngine;
 
 /// <summary>
-/// 公寓关119报警挂钩：玩家完成119话术 → 消防车警笛从场外消防车位置响起（报警的"反馈闭环"）
-/// + TutorialUI 广播"消防队已接警"。Truck_Siren AudioSource 默认停在场景外(x=351)，报警后才归位播放。
-/// 只挂在公寓场景（宿舍/办公楼不走119流程）；只触发"消防队响应"信号，
-/// 不触发 AlarmButton 的全楼警铃（119电话与手动按钮在真实消防教学中是两个不同动作）。
+/// 公寓关119报警+B线固守待援挂钩。
+/// 119线：完成话术 → 消防车警笛归位播放 + 接警广播。
+/// B线：ShelterRescue 完成 → 固守待援结局结算面板。
+/// 只挂在公寓场景。
 /// </summary>
 public class Apartment119Hooks : MonoBehaviour
 {
-    [Header("引用")]
+    [Header("119报警")]
     [SerializeField] private Phone119 phone119;
     [SerializeField] private AudioSource truckSiren;
     [SerializeField] private Transform fireTruck;
     [SerializeField] private TutorialUI tutorial;
-
-    [Header("接警广播文案")]
     [SerializeField, TextArea(1, 2)] private string dispatchHint = "119已接警！消防队正在赶往现场——湿毛巾捂住口鼻，抓紧时间沿疏散方向撤离！";
+
+    [Header("B线固守待援")]
+    [SerializeField] private ShelterRescue shelterRescue;
+    [SerializeField] private ResultPanelController resultPanel;
+    [SerializeField, TextArea(3, 8)] private string rescueWinText = "固守待援结局\n\n你成功堵住门缝、在窗口呼救，消防员及时赶到将你安全救出！\n\n固守待援要点：\n· 用湿毛巾或衣物堵住门缝，阻止浓烟进入\n· 到窗口挥动鲜艳衣物呼救\n· 保持冷静，不要贸然穿越浓烟\n· 关紧房门争取宝贵的等待时间";
 
     private bool alarmRaised;
 
@@ -23,6 +26,9 @@ public class Apartment119Hooks : MonoBehaviour
     {
         if (phone119 == null) phone119 = FindFirstObjectByType<Phone119>();
         if (tutorial == null) tutorial = FindFirstObjectByType<TutorialUI>();
+        // Include：B_Line_Shelter 默认停用（B线触发才激活），不查 inactive 会漏引用
+        if (shelterRescue == null) shelterRescue = FindFirstObjectByType<ShelterRescue>(FindObjectsInactive.Include);
+        if (resultPanel == null) resultPanel = FindFirstObjectByType<ResultPanelController>();
         if (truckSiren == null)
         {
             var go = GameObject.Find("Truck_Siren");
@@ -38,23 +44,28 @@ public class Apartment119Hooks : MonoBehaviour
     private void OnEnable()
     {
         if (phone119 != null) phone119.OnAlarmRaised += OnAlarmRaised;
+        if (shelterRescue != null) shelterRescue.OnRescueComplete += OnRescueComplete;
     }
 
     private void OnDisable()
     {
         if (phone119 != null) phone119.OnAlarmRaised -= OnAlarmRaised;
+        if (shelterRescue != null) shelterRescue.OnRescueComplete -= OnRescueComplete;
     }
 
-    /// <summary>119报警完成（回调在 Phone119 的协程内触发，主线程）。</summary>
     private void OnAlarmRaised(Phone119 phone)
     {
         if (alarmRaised) return;
         alarmRaised = true;
-
         if (fireTruck != null && truckSiren != null)
             truckSiren.transform.position = fireTruck.transform.position;
         if (truckSiren != null && !truckSiren.isPlaying) truckSiren.Play();
-
         if (tutorial != null && !string.IsNullOrEmpty(dispatchHint)) tutorial.ShowHint(dispatchHint);
+    }
+
+    private void OnRescueComplete(ShelterRescue rescue)
+    {
+        if (resultPanel == null) return;
+        resultPanel.ShowWin(rescueWinText);
     }
 }

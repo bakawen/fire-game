@@ -30,7 +30,8 @@ public class EbiikeBranchTrigger : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (fired) return;
-        if (!other.CompareTag("Player")) return;
+        // 玩家识别用组件检测（场景从未设置 Player Tag——与 WinTrigger 同模式，勿用 CompareTag）
+        if (other.GetComponentInParent<FirstPersonController>() == null) return;
         if (ebikeFire == null) return;
 
         fired = true;
