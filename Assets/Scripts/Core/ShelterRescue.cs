@@ -5,7 +5,7 @@ using UnityEngine;
 /// B线固守待援：堵门缝交互 + 窗口求救。
 /// 挂在2F安全户的关门上，玩家交互堵门缝→窗口交互求救→触发消防车到达→固守结局。
 /// </summary>
-public class ShelterRescue : MonoBehaviour, IInteractable
+public class ShelterRescue : MonoBehaviour, IInteractable, IHoldInteractable
 {
     public enum RescueStep { SealDoor, WaveWindow, Waiting, Rescued }
 
@@ -18,10 +18,14 @@ public class ShelterRescue : MonoBehaviour, IInteractable
     [SerializeField, TextArea(1, 2)] private string sealDoneHint = "门缝已堵严实——浓烟进不来了。去窗口呼救！";
     [SerializeField, TextArea(1, 2)] private string waveDoneHint = "消防员看到你了！他们正在架设云梯——坚持住！";
 
-    public string PromptText => currentStep == RescueStep.SealDoor ? "按 E 用湿衣物堵住门缝"
-        : currentStep == RescueStep.WaveWindow ? "按 E 挥动鲜艳衣物求救"
+    public string PromptText => currentStep == RescueStep.SealDoor ? "按住 E 用湿衣物堵住门缝"
+        : currentStep == RescueStep.WaveWindow ? "按住 E 挥动鲜艳衣物求救"
         : null;
     public bool CanInteract => currentStep == RescueStep.SealDoor || currentStep == RescueStep.WaveWindow;
+
+    // —— 长按进度（准星进度圈用）——
+    public float HoldSeconds => holdDuration;
+    public float HoldProgress => interacting ? Mathf.Clamp01(holdTimer / holdDuration) : -1f;
 
     public event Action<ShelterRescue> OnRescueComplete;
 
