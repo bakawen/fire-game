@@ -40,6 +40,7 @@ public class ResultPanelController : MonoBehaviour
         var canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 900;   // 模态置顶（HUD 450 / 暂停 800 / 淡出 32767）
+        canvasGo.AddComponent<GraphicRaycaster>();   // 缺它则按钮点击/滚轮事件全哑
         var scaler = canvasGo.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
