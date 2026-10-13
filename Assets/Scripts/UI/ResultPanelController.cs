@@ -60,7 +60,7 @@ public class ResultPanelController : MonoBehaviour
         dimRt.anchorMax = Vector2.one;
         dimRt.offsetMin = dimRt.offsetMax = Vector2.zero;
         dim.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.78f);
-        dim.GetComponent<Image>().raycastTarget = true;   // 挡住底下 HUD 点击
+        dim.GetComponent<Image>().raycastTarget = false;   // 勿吞事件：HUD已隐藏，挡射线会让按钮/滚轮全罢工
 
         // 卡片
         var card = new GameObject("Card", typeof(RectTransform), typeof(Image));
@@ -139,6 +139,7 @@ public class ResultPanelController : MonoBehaviour
         newDetail.enableWordWrapping = true;
 
         scroll.content = scrollContent;
+        scroll.viewport = vpRt;   // 缺它则滚轮/拖拽的工作区回退到 ScrollRect 自身
 
         // 底部按钮行
         var retry = CreateButton(card.transform, "BtnRetry", "重新开始",
