@@ -160,4 +160,13 @@ public class GameHUD : MonoBehaviour
         c.a = Mathf.Clamp01(alpha);
         vignetteImage.color = c;
     }
+
+    /// <summary>HUD 整体显隐（结算面板模态时隐藏，消除与结算信息重复的计时器）。</summary>
+    public void SetHudVisible(bool visible)
+    {
+        var group = GetComponent<CanvasGroup>();
+        if (group == null) group = gameObject.AddComponent<CanvasGroup>();
+        group.alpha = visible ? 1f : 0f;
+        group.blocksRaycasts = visible;
+    }
 }
