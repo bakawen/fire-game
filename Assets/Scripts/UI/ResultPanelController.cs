@@ -108,7 +108,7 @@ public class ResultPanelController : MonoBehaviour
         vpRt.pivot = new Vector2(0f, 1f);
         vpRt.offsetMin = new Vector2(14f, 10f);
         vpRt.offsetMax = new Vector2(-26f, -10f);
-        viewportGo.GetComponent<Image>().color = Color.clear;
+        viewportGo.GetComponent<Image>().color = new Color(0.02f, 0.02f, 0.04f, 0.6f);   // 深色内底：与卡片区分"区域感"
         viewportGo.GetComponent<Image>().raycastTarget = true;
 
         // Content（高度随文本自适应）
