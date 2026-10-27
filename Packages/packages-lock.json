@@ -1,4 +1,4 @@
-{
+﻿{
   "dependencies": {
     "cn.tuanjie.ai.generators": {
       "version": "file:../.codely-cli/extensions/TJGenerators/Packages/cn.tuanjie.ai.generators",
